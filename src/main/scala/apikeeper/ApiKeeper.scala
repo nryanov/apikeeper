@@ -1,0 +1,3 @@
+package apikeeper
+
+object ApiKeeper {}
