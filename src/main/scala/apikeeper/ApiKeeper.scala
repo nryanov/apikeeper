@@ -1,3 +1,7 @@
 package apikeeper
 
-object ApiKeeper {}
+object ApiKeeper {
+  def main(args: Array[String]): Unit = {
+    
+  }
+}

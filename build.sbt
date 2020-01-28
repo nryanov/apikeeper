@@ -2,6 +2,8 @@ name := "apikeeper"
 
 scalaVersion := "2.12.10"
 
+addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.11.0").cross(CrossVersion.full))
+
 enablePlugins(JavaAppPackaging)
 
 scalacOptions := Seq(
