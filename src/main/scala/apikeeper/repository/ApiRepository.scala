@@ -1,26 +1,36 @@
 package apikeeper.repository
 
-import apikeeper.datasource.DataStorage.{Transact, Tx}
+import apikeeper.datasource.Transactor.{Task, Tx}
 import apikeeper.model.{Api, Endpoint, Id, Service, Usage}
+import cats.data.Kleisli
 import cats.effect.Sync
 import cats.syntax.option._
 import cats.syntax.applicativeError._
 import org.neo4j.driver.exceptions.NoSuchRecordException
 import org.neo4j.driver.{Query, Values}
+import org.pure4s.logger4s.LazyLogging
+import org.pure4s.logger4s.cats.Logger
 
 class ApiRepository[F[_]](
-  transact: Transact[F]
+  transact: Task[F]
 )(implicit F: Sync[F])
-    extends Repository[Tx[F, *]] {
+    extends Repository[Tx[F, *]]
+    with LazyLogging {
   override def findApi(apiId: Id): Tx[F, Option[Api]] =
-    transact(new Query("", Values.EmptyMap)).flatMapF(result =>
-      F.catchNonFatal(Api.fromRecord(result.single()).some).recover {
-        case _: NoSuchRecordException => None
-      }
-    )
+    for {
+      _ <- Kleisli.liftF(Logger[F].info(s"Find Api by id: $apiId"))
+      result <- transact(new Query("MATCH (self:Api) WHERE self.id = $id RETURN self", Values.parameters("id", apiId)))
+        .flatMapF(result =>
+          F.catchNonFatal(Api.fromRecord(result.single()).some).recover {
+            case _: NoSuchRecordException => None
+          }
+        )
+    } yield result
 
-  override def createApi(api: Api): Tx[F, Api] =
-    transact(new Query("", Values.EmptyMap)).flatMapF(result => ???)
+  override def createApi(api: Api): Tx[F, Api] = for {
+    _ <- Kleisli.liftF(Logger[F].info(s"Save api: $api"))
+    _ <- transact(new Query("CREATE (self:Api {id: $id})".stripMargin, Values.parameters(("id", api.id))))
+  } yield api
 
   override def removeApi(apiId: Id): Tx[F, Unit] =
     transact(new Query("", Values.EmptyMap)).flatMapF(result => ???)
@@ -51,4 +61,6 @@ class ApiRepository[F[_]](
     transact(new Query("", Values.EmptyMap)).flatMapF(result => ???)
 }
 
-object ApiRepository {}
+object ApiRepository {
+  def apply[F[_]: Sync](transact: Task[F]): ApiRepository[F] = new ApiRepository(transact)
+}

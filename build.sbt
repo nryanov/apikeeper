@@ -50,7 +50,8 @@ libraryDependencies ++= Seq(
   "org.pure4s" %% "logger4s-cats" % logger4CatsVersion,
   "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,
   "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
-  "com.dimafeng" %% "testcontainers-scala" % testContainersVersion % Test
+  "com.dimafeng" %% "testcontainers-scala" % testContainersVersion % Test,
+  "com.dimafeng" %% "testcontainers-scala-neo4j" % testContainersVersion % Test
 )
 
 mainClass in Compile := Some("")
