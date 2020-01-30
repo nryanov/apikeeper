@@ -5,6 +5,8 @@ import apikeeper.model.{Api, Endpoint, Id, Service, Usage}
 import cats.data.Kleisli
 import cats.effect.Sync
 import cats.syntax.option._
+import cats.syntax.show._
+import cats.syntax.functor._
 import cats.syntax.applicativeError._
 import org.neo4j.driver.exceptions.NoSuchRecordException
 import org.neo4j.driver.{Query, Values}
@@ -19,17 +21,35 @@ class ApiRepository[F[_]](
   override def findApi(apiId: Id): Tx[F, Option[Api]] =
     for {
       _ <- Kleisli.liftF(Logger[F].info(s"Find Api by id: $apiId"))
-      result <- transact(new Query("MATCH (self:Api) WHERE self.id = $id RETURN self", Values.parameters("id", apiId)))
-        .flatMapF(result =>
-          F.catchNonFatal(Api.fromRecord(result.single()).some).recover {
-            case _: NoSuchRecordException => None
-          }
+      result <- transact(
+        new Query(
+          "MATCH (self:Api {id: $id}) RETURN self.id, self.name, self.description, self.wikiLink",
+          Values.parameters("id", apiId.show)
         )
+      ).flatMapF(result =>
+        F.catchNonFatal(Api.fromRecord(result.single()).some).recover {
+          case _: NoSuchRecordException => None
+        }
+      )
     } yield result
 
   override def createApi(api: Api): Tx[F, Api] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Save api: $api"))
-    _ <- transact(new Query("CREATE (self:Api {id: $id})".stripMargin, Values.parameters(("id", api.id))))
+    _ <- transact(
+      new Query(
+        "CREATE (self:Api {id: $id, name: $name, description: $description, wikiLink: $wikiLink})".stripMargin,
+        Values.parameters(
+          "id",
+          api.id.show,
+          "name",
+          api.name,
+          "description",
+          api.description.orNull,
+          "wikiLink",
+          api.wikiLink.orNull
+        )
+      )
+    )
   } yield api
 
   override def removeApi(apiId: Id): Tx[F, Unit] =

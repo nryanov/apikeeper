@@ -1,7 +1,9 @@
 package apikeeper
 
 final case class Neo4jSettings(
-  uri: String
+  uri: String,
+  username: String,
+  password: String
 )
 
 final case class ServerSettings()
