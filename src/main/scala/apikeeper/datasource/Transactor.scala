@@ -16,15 +16,15 @@ class Transactor[F[_]](driver: Driver)(implicit F: Sync[F]) extends LazyLogging 
     def acquire: F[Session] = F.delay(driver.session())
 
     def use(session: Session): F[A] = for {
-      transaction <- session.beginTransaction().pure
+      transaction <- F.delay(session.beginTransaction())
       result <- tx(transaction).onError {
         case e: Throwable =>
           for {
             _ <- Logger[F].error("Error during transaction", e)
-            _ <- transaction.rollback().pure
+            _ <- F.delay(transaction.rollback())
           } yield ()
       }
-      _ <- transaction.commit().pure
+      _ <- F.delay(transaction.commit())
     } yield result
 
     def release(session: Session): F[Unit] = F.delay(session.close())
