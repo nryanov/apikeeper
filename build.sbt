@@ -54,6 +54,7 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-parser" % circeVersion,
   "io.7mind.izumi" %% "distage-core" % distageVersion,
   "com.beachape" %% "enumeratum" % enumeratumVersion,
+  "com.beachape" %% "enumeratum-circe" % enumeratumVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
   "org.pure4s" %% "logger4s-cats" % logger4CatsVersion,
   "com.github.pureconfig" %% "pureconfig" % pureConfigVersion,

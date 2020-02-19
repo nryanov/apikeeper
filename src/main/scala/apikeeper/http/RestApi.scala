@@ -13,8 +13,8 @@ import io.circe.generic.auto._
 import sttp.tapir.server.http4s._
 import sttp.model.StatusCode
 
-class Api[F[_]: ContextShift](implicit F: Sync[F]) {
-  import Api._
+class RestApi[F[_]: ContextShift](implicit F: Sync[F]) {
+  import RestApi._
 
   private val baseEndpoint: Endpoint[Unit, (StatusCode, ErrorInfo), Unit, Nothing] =
     endpoint.in(apiVersion).errorOut(statusCode.and(jsonBody[ErrorInfo]))
@@ -26,8 +26,8 @@ class Api[F[_]: ContextShift](implicit F: Sync[F]) {
     helloWorld.toRoutes(name => F.pure(s"Hello, $name!").map(_.asRight[(StatusCode, ErrorInfo)]))
 }
 
-object Api {
+object RestApi {
   private val apiVersion = "v1"
 
-  def apply[F[_]: Sync: ContextShift](): Api[F] = new Api()
+  def apply[F[_]: Sync: ContextShift](): RestApi[F] = new RestApi()
 }

@@ -1,25 +1,19 @@
 package apikeeper.repository
 
-import apikeeper.model.{Api, Endpoint, Id, Service, Usage}
+import apikeeper.model.{Entity, Id, Relation}
 
 trait Repository[F[_]] {
-  def findApi(apiId: Id): F[Option[Api]]
+  def findEntity(entityId: Id): F[Option[Entity]]
 
-  def createApi(api: Api): F[Api]
+  def findClosestEntityRelations(entityId: Id): F[Seq[Relation]]
 
-  def removeApi(apiId: Id): F[Unit]
+  def createEntity(entity: Entity): F[Entity]
 
-  def findService(serviceId: Id): F[Option[Service]]
+  def createRelation(relation: Relation): F[Relation]
 
-  def createService(service: Service): F[Service]
+  def removeEntity(entityId: Id): F[Unit]
 
-  def removeService(serviceId: Id): F[Unit]
+  def removeAllEntityRelations(entityId: Id): F[Unit]
 
-  def addEndpoint(apiId: Id, endpoint: Endpoint): F[Endpoint]
-
-  def removeEndpoint(apiId: Id, endpointId: Id): F[Unit]
-
-  def addUsage(sourceId: Id, targetId: Id, usage: Usage): F[Usage]
-
-  def removeUsage(usageId: Id): F[Unit]
+  def removeRelation(relationId: Id): F[Unit]
 }
