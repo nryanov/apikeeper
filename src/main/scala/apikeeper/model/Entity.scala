@@ -3,6 +3,7 @@ package apikeeper.model
 import cats.syntax.show._
 import org.neo4j.driver.{Record, Value, Values}
 import apikeeper.model.syntax.Neo4jSyntax._
+import org.neo4j.driver.types.Node
 
 final case class Entity(
   id: Id,
@@ -19,6 +20,16 @@ object Entity {
     val name = record.asString("self.name")
     val description = record.asOptionalString("self.description")
     val wikiLink = record.asOptionalString("self.wikiLink")
+
+    new Entity(id, entityType, name, description, wikiLink)
+  }
+
+  def fromNode(node: Node): Entity = {
+    val id = Id(node.asString("self.id"))
+    val entityType = EntityType.withNameInsensitive(node.asString("self.entityType"))
+    val name = node.asString("self.name")
+    val description = node.asOptionalString("self.description")
+    val wikiLink = node.asOptionalString("self.wikiLink")
 
     new Entity(id, entityType, name, description, wikiLink)
   }
