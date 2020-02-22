@@ -12,4 +12,7 @@
     <root level="info">
         <appender-ref ref="ASYNC-STDOUT"/>
     </root>
+
+    <logger name="ChannelErrorHandler" level="ERROR"/>
+    <logger name="InboundMessageHandler" level="ERROR"/>
 </configuration>
