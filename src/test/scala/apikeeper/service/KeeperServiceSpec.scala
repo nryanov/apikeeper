@@ -3,7 +3,7 @@ package apikeeper.service
 import apikeeper.datasource.{DataStorage, Migration, QueryRunner, Transactor}
 import apikeeper.{DISpec, Neo4jSettings}
 import apikeeper.model.{Entity, EntityType, Id}
-import apikeeper.repository.{KeeperRepository}
+import apikeeper.repository.KeeperRepository
 import cats.effect.{Bracket, ConcurrentEffect, ContextShift, Resource, Sync, Timer}
 import com.dimafeng.testcontainers.Neo4jContainer
 import com.dimafeng.testcontainers.scalatest.TestContainerForAll
