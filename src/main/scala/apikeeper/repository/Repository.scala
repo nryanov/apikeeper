@@ -1,5 +1,6 @@
 package apikeeper.repository
 
+import apikeeper.model.graph.{Branch, Leaf}
 import apikeeper.model.{Entity, Id, Relation}
 
 trait Repository[F[_]] {
@@ -7,11 +8,11 @@ trait Repository[F[_]] {
 
   def findEntities(page: Int, countPerPage: Int = 10): F[Seq[Entity]]
 
-  def findClosestEntityRelations(entityId: Id): F[Seq[Relation]]
+  def findClosestEntityRelations(entityId: Id): F[Seq[Leaf]]
 
   def createEntity(entity: Entity): F[Entity]
 
-  def createRelation(from: Entity, to: Entity, relation: Relation): F[Relation]
+  def createRelation(node: Branch): F[Relation]
 
   def removeEntity(entityId: Id): F[Unit]
 

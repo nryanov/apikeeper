@@ -1,7 +1,8 @@
 package apikeeper.repository
 
 import apikeeper.datasource.Transactor.{Task, Tx}
-import apikeeper.model.{Entity, Id, Relation}
+import apikeeper.model.graph.{Branch, Leaf}
+import apikeeper.model.{Entity, Id, Relation, RelationType}
 import cats.data.Kleisli
 import cats.effect.Sync
 import cats.syntax.option._
@@ -41,17 +42,25 @@ class KeeperRepository[F[_]](
     )
   } yield result
 
-  override def findClosestEntityRelations(entityId: Id): Tx[F, Seq[Relation]] = for {
+  override def findClosestEntityRelations(entityId: Id): Tx[F, Seq[Leaf]] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Find closest relations for entity by id: $entityId"))
     result <- transact(
       new Query(
         """
-          |MATCH (:Entity {id: $id})-[self:Relation]-()
-          |RETURN self.id
+          |MATCH (:Entity {id: $id})-[rel:Relation]-(e:Entity)
+          |RETURN rel.id, rel.relationType, e.id, e.entityType, e.name, e.description, e.wikiLink
           |""".stripMargin,
         Values.parameters("id", entityId.show)
       )
-    ).map(_.list().asScala.map(Relation.fromRecord).toSeq)
+    ).map(
+      _.list().asScala.map { record =>
+        println(record)
+        Leaf(
+          entity = Entity.fromRecord(record, "e"),
+          relation = Relation.fromRecord(record, "rel")
+        )
+      }
+    )
   } yield result
 
   override def createEntity(entity: Entity): Tx[F, Entity] = for {
@@ -64,15 +73,29 @@ class KeeperRepository[F[_]](
     )
   } yield entity
 
-  override def createRelation(from: Entity, to: Entity, relation: Relation): Tx[F, Relation] = for {
-    _ <- Kleisli.liftF(Logger[F].info(s"Create relation: $relation"))
+  override def createRelation(node: Branch): Tx[F, Relation] = for {
+    _ <- Kleisli.liftF(Logger[F].info(s"Create relation: $node"))
+    relation = node.relation
+    (from, to) = relation.relationType match {
+      case RelationType.In  => (node.right, node.left)
+      case RelationType.Out => (node.left, node.right)
+    }
     _ <- transact(
       new Query(
         """
           |MATCH (from:Entity {id: $fromId}), (to:Entity {id: $toId})
-          |CREATE (from)-[:Relation {id: $id}]->(to)
+          |CREATE (from)-[:Relation {id: $id, relationType: $relationType}]->(to)
           |""".stripMargin,
-        Values.parameters("fromId", from.id.show, "toId", to.id.show, "id", relation.id.show)
+        Values.parameters(
+          "fromId",
+          from.show,
+          "toId",
+          to.show,
+          "id",
+          relation.id.show,
+          "relationType",
+          relation.relationType.entryName
+        )
       )
     )
   } yield relation
@@ -120,7 +143,7 @@ class KeeperRepository[F[_]](
           |""".stripMargin,
         Values.parameters("skip", Int.box(countPerPage * (page - 1)), "limit", Int.box(countPerPage))
       )
-    ).map(_.list().asScala.map(Entity.fromRecord).toSeq)
+    ).map(_.list().asScala.map(Entity.fromRecord(_)).toSeq)
   } yield result
 }
 

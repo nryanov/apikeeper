@@ -14,22 +14,22 @@ final case class Entity(
 )
 
 object Entity {
-  def fromRecord(record: Record): Entity = {
-    val id = Id(record.asString("self.id"))
-    val entityType = EntityType.withNameInsensitive(record.asString("self.entityType"))
-    val name = record.asString("self.name")
-    val description = record.asOptionalString("self.description")
-    val wikiLink = record.asOptionalString("self.wikiLink")
+  def fromRecord(record: Record, ref: String = "self"): Entity = {
+    val id = Id(record.asString(s"$ref.id"))
+    val entityType = EntityType.withNameInsensitive(record.asString(s"$ref.entityType"))
+    val name = record.asString(s"$ref.name")
+    val description = record.asOptionalString(s"$ref.description")
+    val wikiLink = record.asOptionalString(s"$ref.wikiLink")
 
     new Entity(id, entityType, name, description, wikiLink)
   }
 
-  def fromNode(node: Node): Entity = {
-    val id = Id(node.asString("self.id"))
-    val entityType = EntityType.withNameInsensitive(node.asString("self.entityType"))
-    val name = node.asString("self.name")
-    val description = node.asOptionalString("self.description")
-    val wikiLink = node.asOptionalString("self.wikiLink")
+  def fromNode(node: Node, ref: String = "self"): Entity = {
+    val id = Id(node.asString(s"$ref.id"))
+    val entityType = EntityType.withNameInsensitive(node.asString(s"$ref.entityType"))
+    val name = node.asString(s"$ref.name")
+    val description = node.asOptionalString(s"$ref.description")
+    val wikiLink = node.asOptionalString(s"$ref.wikiLink")
 
     new Entity(id, entityType, name, description, wikiLink)
   }
