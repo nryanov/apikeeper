@@ -1,3 +1,3 @@
 package apikeeper.http
 
-final case class ErrorInfo()
+final case class ErrorInfo(msg: String)

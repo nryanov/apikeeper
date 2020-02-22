@@ -15,7 +15,8 @@ scalacOptions := Seq(
   "-language:implicitConversions",
   "-language:higherKinds",
   "-language:existentials",
-  "-language:postfixOps"
+  "-language:postfixOps",
+  "-Ypartial-unification"
 )
 
 val catsVersion = "2.0.0"
