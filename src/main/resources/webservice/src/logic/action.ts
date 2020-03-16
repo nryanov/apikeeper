@@ -1,4 +1,4 @@
-import {Branch, EntityProps, Id} from "../common/Types";
+import {Branch, EntityProps, Id} from "./types";
 import {
     CREATE_ENTITIES,
     CREATE_ENTITY,
@@ -7,87 +7,86 @@ import {
     FIND_CLOSEST_ENTITY_RELATIONS,
     FIND_ENTITIES,
     FIND_ENTITY,
-    KeeperActions,
     REMOVE_ALL_ENTITY_RELATIONS,
     REMOVE_ENTITY,
     REMOVE_RELATION,
     REMOVE_RELATIONS
-} from "./actionTypes";
+} from "./actionType";
 
-export function createEntities(entitiesProps: EntityProps[]): KeeperActions {
+export const createEntities = (entitiesProps: EntityProps[]) => {
   return {
       type: CREATE_ENTITIES,
       entitiesProps: entitiesProps
   }
-}
+};
 
-export function createEntity(entityProps: EntityProps): KeeperActions {
+export const createEntity = (entityProps: EntityProps) => {
     return {
         type: CREATE_ENTITY,
         entityProps: entityProps
     }
-}
+};
 
-export function findEntities(ids: Id[]): KeeperActions {
+export const findEntities = (ids: Id[]) => {
     return {
         type: FIND_ENTITIES,
         ids: ids
     }
-}
+};
 
-export function findEntity(id: Id): KeeperActions {
+export const findEntity = (id: Id) => {
     return {
         type: FIND_ENTITY,
         id: id
     }
-}
+};
 
-export function findClosestEntityRelations(id: Id): KeeperActions {
+export const findClosestEntityRelations = (id: Id) => {
     return {
         type: FIND_CLOSEST_ENTITY_RELATIONS,
         id: id
     }
 
-}
+};
 
-export function createRelation(branch: Branch): KeeperActions {
+export const createRelation = (branch: Branch) => {
     return {
         type: CREATE_RELATION,
         branch: branch
     }
-}
+};
 
-export function createRelations(branches: Branch[]): KeeperActions {
+export const createRelations = (branches: Branch[]) => {
     return {
         type: CREATE_RELATIONS,
         branches: branches
     }
-}
+};
 
-export function removeEntity(id: Id): KeeperActions {
+export const removeEntity = (id: Id) => {
     return {
         type: REMOVE_ENTITY,
         id: id
     }
-}
+};
 
-export function removeRelation(id: Id): KeeperActions {
+export const removeRelation = (id: Id) => {
     return {
         type: REMOVE_RELATION,
         id: id
     }
-}
+};
 
-export function removeRelations(ids: Id[]): KeeperActions {
+export const removeRelations = (ids: Id[]) => {
     return {
         type: REMOVE_RELATIONS,
         ids: ids
     }
-}
+};
 
-export function removeAllEntityRelations(id: Id): KeeperActions {
+export const removeAllEntityRelations = (id: Id) => {
     return {
         type: REMOVE_ALL_ENTITY_RELATIONS,
         id: id
     }
-}
+};
