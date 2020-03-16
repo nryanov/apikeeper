@@ -15,11 +15,13 @@ class Migration[F[_]](transactor: Transactor[F], queryRunner: QueryRunner[F])(im
   def migrate(): F[Unit] = transact(for {
     _ <- createEntityConstraint()
     _ <- createRelationConstraint()
+    _ <- createEntityNameIndex()
   } yield ())
 
   def clean(): F[Unit] = transact(for {
     _ <- dropEntityConstraint()
     _ <- dropRelationConstraint()
+    _ <- dropEntityNameIndex()
   } yield ()).handleError(_ => ()) // if constraint does not exist yet
 
   def truncate(): F[Unit] = transact(clearDatabase())
@@ -43,6 +45,13 @@ class Migration[F[_]](transactor: Transactor[F], queryRunner: QueryRunner[F])(im
       _ <- Kleisli.liftF(Logger[F].info("Relation unique constraint was created"))
     } yield ()
 
+  private def createEntityNameIndex(): Tx[F, Unit] =
+    for {
+      _ <- Kleisli.liftF(Logger[F].info("Create index for Entity:name"))
+      _ <- queryRunner.run(new Query("CREATE INDEX entity_name_idx FOR (e:Entity) ON (e.name)"))
+      _ <- Kleisli.liftF(Logger[F].info("Index for Entity:name was created"))
+    } yield ()
+
   private def dropEntityConstraint(): Tx[F, Unit] =
     for {
       _ <- Kleisli.liftF(Logger[F].info("Drop unique constraint for entity"))
@@ -55,6 +64,13 @@ class Migration[F[_]](transactor: Transactor[F], queryRunner: QueryRunner[F])(im
       _ <- Kleisli.liftF(Logger[F].info("Drop unique constraint for relation"))
       _ <- queryRunner.run(new Query("DROP CONSTRAINT relation_unique_id"))
       _ <- Kleisli.liftF(Logger[F].info("Relation unique constraint was dropped"))
+    } yield ()
+
+  private def dropEntityNameIndex(): Tx[F, Unit] =
+    for {
+      _ <- Kleisli.liftF(Logger[F].info("Drop index for Entity:name"))
+      _ <- queryRunner.run(new Query("DROP INDEX entity_name_idx"))
+      _ <- Kleisli.liftF(Logger[F].info("Index for Entity:name was dropped"))
     } yield ()
 }
 
