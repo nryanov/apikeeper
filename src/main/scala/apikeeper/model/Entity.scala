@@ -13,6 +13,12 @@ final case class Entity(
 )
 
 object Entity {
+  def apply(id: Id, entityType: EntityType, name: String, description: Option[String] = None): Entity =
+    new Entity(id, entityType, name, description)
+
+  def apply(id: Id, entityDef: EntityDef): Entity =
+    Entity(id, entityDef.entityType, entityDef.name, entityDef.description)
+
   def fromRecord(record: Record, ref: String = "self"): Entity = {
     val id = Id(record.asString(s"$ref.id"))
     val entityType = EntityType.withNameInsensitive(record.asString(s"$ref.entityType"))

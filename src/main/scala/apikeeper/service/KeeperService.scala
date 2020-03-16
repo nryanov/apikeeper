@@ -1,17 +1,23 @@
 package apikeeper.service
 
+import cats.~>
+import cats.effect.Sync
+import cats.syntax.functor._
+import cats.syntax.flatMap._
+import cats.syntax.traverse._
+import cats.instances.list._
 import apikeeper.datasource.Transactor
 import apikeeper.datasource.Transactor.Tx
 import apikeeper.model
-import apikeeper.model.{Entity, Relation}
+import apikeeper.model.{Entity, EntityDef, Relation}
 import apikeeper.model.graph.{Branch, Leaf}
 import apikeeper.repository.KeeperRepository
-import cats.effect.Sync
-import cats.~>
+import apikeeper.service.internal.IdGenerator
 
 class KeeperService[F[_]: Sync](
   transactor: Transactor[F],
-  repository: KeeperRepository[F]
+  repository: KeeperRepository[F],
+  idGenerator: IdGenerator[F]
 ) extends Service[F] {
   private val transact: Tx[F, *] ~> F = transactor.transact()
 
@@ -27,18 +33,19 @@ class KeeperService[F[_]: Sync](
   override def findClosestEntityRelations(entityId: model.Id): F[Seq[Leaf]] =
     transact(repository.findClosestEntityRelations(entityId))
 
-  override def createEntity(entity: Entity): F[Entity] =
-    transact(repository.createEntity(entity))
+  override def createEntity(entityDef: EntityDef): F[Entity] = for {
+    id <- idGenerator.next()
+    entity = Entity(id, entityDef)
+    _ <- transact(repository.createEntity(entity))
+  } yield entity
 
-  override def createEntities(entities: Seq[Entity]): F[Seq[Entity]] =
-    transact(
-      entities.toList
-        .map(repository.createEntity(_).map(List(_)))
-        .reduce[Tx[F, List[Entity]]] {
-          case (l, r) => l.flatMap(r1 => r.map(r2 => r1 ::: r2))
-        }
-        .map(_.toSeq)
-    )
+  override def createEntities(entityDefs: Seq[EntityDef]): F[Seq[Entity]] =
+    for {
+      entities <- entityDefs.toList.traverse(entityDef => idGenerator.next().map(id => Entity(id, entityDef)))
+      _ <- transact(entities.map(repository.createEntity(_).map(List(_))).reduce[Tx[F, List[Entity]]] {
+        case (l, r) => l.flatMap(r1 => r.map(r2 => r1 ::: r2))
+      })
+    } yield entities
 
   override def createRelation(branch: Branch): F[Relation] =
     transact(repository.createRelation(branch))
@@ -74,6 +81,6 @@ class KeeperService[F[_]: Sync](
 }
 
 object KeeperService {
-  def apply[F[_]: Sync](transactor: Transactor[F], repository: KeeperRepository[F]): KeeperService[F] =
-    new KeeperService(transactor, repository)
+  def apply[F[_]: Sync](transactor: Transactor[F], repository: KeeperRepository[F], idGenerator: IdGenerator[F]): KeeperService[F] =
+    new KeeperService(transactor, repository, idGenerator)
 }

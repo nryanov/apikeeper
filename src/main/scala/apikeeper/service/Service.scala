@@ -1,6 +1,6 @@
 package apikeeper.service
 
-import apikeeper.model.{Entity, Id, Relation}
+import apikeeper.model.{Entity, EntityDef, Id, Relation}
 import apikeeper.model.graph.{Branch, Leaf}
 
 trait Service[F[_]] {
@@ -12,9 +12,9 @@ trait Service[F[_]] {
 
   def findClosestEntityRelations(entityId: Id): F[Seq[Leaf]]
 
-  def createEntity(entity: Entity): F[Entity]
+  def createEntity(entityDef: EntityDef): F[Entity]
 
-  def createEntities(entities: Seq[Entity]): F[Seq[Entity]]
+  def createEntities(entityDefs: Seq[EntityDef]): F[Seq[Entity]]
 
   def createRelation(branch: Branch): F[Relation]
 

@@ -1,6 +1,6 @@
 package apikeeper.http
 
-import apikeeper.model.{Entity, Id, Relation}
+import apikeeper.model.{Entity, EntityDef, Id, Relation}
 import apikeeper.model.graph.{Branch, Leaf}
 import apikeeper.repository.KeeperRepository.{IncorrectEntitiesPerPage, IncorrectPageNumber}
 import apikeeper.service.Service
@@ -42,17 +42,17 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
   val findClosestEntityRelationsRoute =
     findClosestEntityRelationsEndpoint.toRoutes(id => toRoute(service.findClosestEntityRelations(id)))
 
-  val createEntityEndpoint: Endpoint[Entity, (StatusCode, ErrorInfo), Entity, Nothing] =
-    baseEndpoint.post.in("entity").in(jsonBody[Entity]).out(jsonBody[Entity])
+  val createEntityEndpoint: Endpoint[EntityDef, (StatusCode, ErrorInfo), Entity, Nothing] =
+    baseEndpoint.post.in("entity").in(jsonBody[EntityDef]).out(jsonBody[Entity])
 
   val createEntityRoute =
-    createEntityEndpoint.toRoutes(entity => toRoute(service.createEntity(entity)))
+    createEntityEndpoint.toRoutes(entityDef => toRoute(service.createEntity(entityDef)))
 
-  val createEntitiesEndpoint: Endpoint[Seq[Entity], (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
-    baseEndpoint.post.in("entity").in(jsonBody[Seq[Entity]]).out(jsonBody[Seq[Entity]])
+  val createEntitiesEndpoint: Endpoint[Seq[EntityDef], (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
+    baseEndpoint.post.in("entity").in(jsonBody[Seq[EntityDef]]).out(jsonBody[Seq[Entity]])
 
   val createEntitiesRoute =
-    createEntitiesEndpoint.toRoutes(entities => toRoute(service.createEntities(entities)))
+    createEntitiesEndpoint.toRoutes(entityDefs => toRoute(service.createEntities(entityDefs)))
 
   val createRelationEndpoint: Endpoint[Branch, (StatusCode, ErrorInfo), Relation, Nothing] =
     baseEndpoint.post.in("relation").in(jsonBody[Branch]).out(jsonBody[Relation])

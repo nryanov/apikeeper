@@ -3,7 +3,9 @@ package apikeeper
 import apikeeper.datasource.{DataStorage, Migration, QueryRunner, Transactor}
 import apikeeper.http.{HttpServer, RestApi, SwaggerApi}
 import apikeeper.repository.KeeperRepository
+import apikeeper.service.internal.{IdGenerator, IdGeneratorImpl}
 import apikeeper.service.{KeeperService, Service}
+import cats.Applicative
 import distage.{GCMode, Injector, ModuleDef, TagK}
 import cats.effect.{Bracket, ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Resource, Sync, Timer}
 import org.neo4j.driver.Driver
@@ -26,10 +28,12 @@ object ApiKeeper extends IOApp {
       make[Transactor[F]]
       make[Migration[F]]
       make[KeeperRepository[F]]
+      make[IdGenerator[F]].from[IdGeneratorImpl[F]]
       make[Service[F]].from[KeeperService[F]]
 
       addImplicit[Sync[F]]
       addImplicit[ContextShift[F]]
+      addImplicit[Applicative[F]]
       addImplicit[Timer[F]]
       addImplicit[Bracket[F, Throwable]]
       addImplicit[ConcurrentEffect[F]]
