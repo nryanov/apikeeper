@@ -13,6 +13,7 @@ class SwaggerApi[F[_]: Sync: ContextShift](restApi: RestApi[F]) {
     restApi.findEntityEndpoint,
     restApi.findEntitiesEndpoint,
     restApi.findClosestEntityRelationsEndpoint,
+    restApi.findEntitiesByNameEndpoint,
     restApi.createEntityEndpoint,
     restApi.createEntitiesEndpoint,
     restApi.createRelationEndpoint,

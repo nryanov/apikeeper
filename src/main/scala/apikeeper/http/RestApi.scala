@@ -5,7 +5,6 @@ import apikeeper.model.graph.{Branch, Leaf}
 import apikeeper.repository.KeeperRepository.{IncorrectEntitiesPerPage, IncorrectPageNumber}
 import apikeeper.service.Service
 import cats.effect.{ContextShift, Sync}
-import cats.syntax.applicative._
 import cats.syntax.applicativeError._
 import cats.syntax.functor._
 import cats.syntax.either._
@@ -34,6 +33,14 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
   val findEntitiesRoute =
     findEntitiesEndpoint.toRoutes {
       case (page, count) => toRoute(service.findEntities(page, count.getOrElse(10)))
+    }
+
+  val findEntitiesByNameEndpoint: Endpoint[(String, Option[Int]), (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
+    baseEndpoint.get.in("entity").in(query[String]("name")).in(query[Option[Int]]("entries")).out(jsonBody[Seq[Entity]])
+
+  val findEntitiesByNameRoute =
+    findEntitiesByNameEndpoint.toRoutes {
+      case (pattern, count) => toRoute(service.findEntitiesByNameLike(pattern, count))
     }
 
   val findClosestEntityRelationsEndpoint: Endpoint[Id, (StatusCode, ErrorInfo), Seq[Leaf], Nothing] =
@@ -108,6 +115,7 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
   val route: HttpRoutes[F] = findEntityRoute
     .combineK(findEntitiesRoute)
     .combineK(findClosestEntityRelationsRoute)
+    .combineK(findEntitiesByNameRoute)
     .combineK(createEntityRoute)
     .combineK(createEntitiesRoute)
     .combineK(createRelationRoute)
