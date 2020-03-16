@@ -8,6 +8,8 @@ trait Service[F[_]] {
 
   def findEntities(page: Int, countPerPage: Int = 10): F[Seq[Entity]]
 
+  def findEntitiesByNameLike(pattern: String, limit: Option[Int] = None): F[Seq[Entity]]
+
   def findClosestEntityRelations(entityId: Id): F[Seq[Leaf]]
 
   def createEntity(entity: Entity): F[Entity]

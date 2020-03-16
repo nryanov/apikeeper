@@ -18,6 +18,9 @@ class KeeperService[F[_]: Sync](
   override def findEntity(entityId: model.Id): F[Option[Entity]] =
     transact(repository.findEntity(entityId))
 
+  override def findEntitiesByNameLike(pattern: String, limit: Option[Int]): F[Seq[Entity]] =
+    transact(repository.findEntitiesByNameLike(pattern, limit))
+
   override def findEntities(page: Int, countPerPage: Int): F[Seq[Entity]] =
     transact(repository.findEntities(page, countPerPage))
 
