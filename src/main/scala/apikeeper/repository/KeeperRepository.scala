@@ -31,7 +31,7 @@ class KeeperRepository[F[_]](
     result <- queryRunner
       .run(
         new Query(
-          "MATCH (self:Entity {id: $id}) RETURN DISTINCT self.id, self.entityType, self.name, self.description, self.wikiLink",
+          "MATCH (self:Entity {id: $id}) RETURN DISTINCT self.id, self.entityType, self.name, self.description",
           Values.parameters("id", entityId.show)
         )
       )
@@ -50,7 +50,7 @@ class KeeperRepository[F[_]](
           """
             |MATCH (self:Entity)
             |WHERE self.name =~ $pattern
-            |RETURN DISTINCT self.id, self.entityType, self.name, self.description, self.wikiLink
+            |RETURN DISTINCT self.id, self.entityType, self.name, self.description
             |LIMIT $limit
             |""".stripMargin,
           Values.parameters("pattern", s".*?$pattern.*?", "limit", Int.box(limit.getOrElse(1)))
@@ -66,7 +66,7 @@ class KeeperRepository[F[_]](
         new Query(
           """
           |MATCH (:Entity {id: $id})-[rel:Relation]-(e:Entity)
-          |RETURN rel.id, rel.relationType, e.id, e.entityType, e.name, e.description, e.wikiLink
+          |RETURN rel.id, rel.relationType, e.id, e.entityType, e.name, e.description
           |""".stripMargin,
           Values.parameters("id", entityId.show)
         )
@@ -86,7 +86,7 @@ class KeeperRepository[F[_]](
     _ <- Kleisli.liftF(Logger[F].info(s"Create entity: $entity"))
     _ <- queryRunner.run(
       new Query(
-        "CREATE (self:Entity {id: $id, entityType: $entityType, name: $name, description: $description, wikiLink: $wikiLink})",
+        "CREATE (self:Entity {id: $id, entityType: $entityType, name: $name, description: $description})",
         Entity.toValue(entity)
       )
     )
@@ -158,7 +158,7 @@ class KeeperRepository[F[_]](
         new Query(
           """
           |MATCH (self:Entity)
-          |RETURN DISTINCT self.id, self.entityType, self.name, self.description, self.wikiLink
+          |RETURN DISTINCT self.id, self.entityType, self.name, self.description
           |SKIP $skip LIMIT $limit
           |""".stripMargin,
           Values.parameters("skip", Int.box(countPerPage * (page - 1)), "limit", Int.box(countPerPage))

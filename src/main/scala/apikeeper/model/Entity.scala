@@ -9,8 +9,7 @@ final case class Entity(
   id: Id,
   entityType: EntityType,
   name: String,
-  description: Option[String] = None,
-  wikiLink: Option[String] = None
+  description: Option[String] = None
 )
 
 object Entity {
@@ -19,9 +18,8 @@ object Entity {
     val entityType = EntityType.withNameInsensitive(record.asString(s"$ref.entityType"))
     val name = record.asString(s"$ref.name")
     val description = record.asOptionalString(s"$ref.description")
-    val wikiLink = record.asOptionalString(s"$ref.wikiLink")
 
-    new Entity(id, entityType, name, description, wikiLink)
+    new Entity(id, entityType, name, description)
   }
 
   def fromNode(node: Node, ref: String = "self"): Entity = {
@@ -29,9 +27,8 @@ object Entity {
     val entityType = EntityType.withNameInsensitive(node.asString(s"$ref.entityType"))
     val name = node.asString(s"$ref.name")
     val description = node.asOptionalString(s"$ref.description")
-    val wikiLink = node.asOptionalString(s"$ref.wikiLink")
 
-    new Entity(id, entityType, name, description, wikiLink)
+    new Entity(id, entityType, name, description)
   }
 
   def toValue(entity: Entity): Value = Values.parameters(
@@ -42,8 +39,6 @@ object Entity {
     "name",
     entity.name,
     "description",
-    entity.description.orNull,
-    "wikiLink",
-    entity.wikiLink.orNull
+    entity.description.orNull
   )
 }
