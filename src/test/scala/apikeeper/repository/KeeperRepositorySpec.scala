@@ -1,15 +1,16 @@
 package apikeeper.repository
 
+import cats.~>
+import cats.syntax.option._
+import org.neo4j.driver.Driver
+import org.scalatest.BeforeAndAfterEach
+import com.dimafeng.testcontainers.Neo4jContainer
+import com.dimafeng.testcontainers.scalatest.TestContainerForAll
 import apikeeper.datasource.Transactor.Tx
 import apikeeper.{IOSpec, Neo4jSettings}
 import apikeeper.datasource.{DataStorage, QueryRunner, Transactor}
 import apikeeper.model.graph.{Branch, Leaf}
 import apikeeper.model.{Entity, EntityType, Id, Relation, RelationType}
-import cats.~>
-import com.dimafeng.testcontainers.Neo4jContainer
-import com.dimafeng.testcontainers.scalatest.TestContainerForAll
-import org.neo4j.driver.Driver
-import org.scalatest.BeforeAndAfterEach
 
 class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAndAfterEach {
   override val containerDef: Neo4jContainer.Def = Neo4jContainer.Def(dockerImageName = "neo4j:4.0.0")
@@ -20,7 +21,8 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
   private var transact: ~>[Tx[F, *], F] = _
 
   override def afterContainersStart(container: Neo4jContainer): Unit = {
-    val dataStorage = DataStorage[F](Neo4jSettings(container.boltUrl, container.username, container.password)).connect().allocated.unsafeRunSync()
+    val dataStorage =
+      DataStorage[F](Neo4jSettings(container.boltUrl, container.username, container.password)).connect().allocated.unsafeRunSync()
     driver = dataStorage._1
     finalizers = dataStorage._2
     val transactor = Transactor[F](driver)
@@ -61,6 +63,31 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
         _ <- transact(task)
         result <- transact(apiRepository.findEntities(1, 5))
       } yield assertResult(Seq(entity1, entity2))(result)
+    }
+
+    "find entity definitions by name pattern (1)" in runF {
+      for {
+        id1 <- fixedUUID.randomUUI()
+        id2 <- fixedUUID.randomUUI()
+        entity1 = Entity(Id(id1), EntityType.Storage, "storage")
+        entity2 = Entity(Id(id2), EntityType.Service, "service")
+        task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
+        _ <- transact(task)
+        // will find first entity because limit will be equal to 1
+        result <- transact(apiRepository.findEntitiesByNameLike("s", None))
+      } yield assertResult(Seq(entity1))(result)
+    }
+
+    "find entity definitions by name pattern (2)" in runF {
+      for {
+        id1 <- fixedUUID.randomUUI()
+        id2 <- fixedUUID.randomUUI()
+        entity1 = Entity(Id(id1), EntityType.Storage, "storage")
+        entity2 = Entity(Id(id2), EntityType.Service, "service")
+        task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
+        _ <- transact(task)
+        result <- transact(apiRepository.findEntitiesByNameLike("ervic", None))
+      } yield assertResult(Seq(entity2))(result)
     }
 
     "remove entity definition" in runF {

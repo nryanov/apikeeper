@@ -42,6 +42,23 @@ class KeeperRepository[F[_]](
       )
   } yield result
 
+  override def findEntitiesByNameLike(pattern: String, limit: Option[Int]): Tx[F, Seq[Entity]] = for {
+    _ <- Kleisli.liftF(Logger[F].info(s"Find entities by name: $pattern"))
+    result <- queryRunner
+      .run(
+        new Query(
+          """
+            |MATCH (self:Entity)
+            |WHERE self.name =~ $pattern
+            |RETURN DISTINCT self.id, self.entityType, self.name, self.description, self.wikiLink
+            |LIMIT $limit
+            |""".stripMargin,
+          Values.parameters("pattern", s".*?$pattern.*?", "limit", Int.box(limit.getOrElse(1)))
+        )
+      )
+      .map(_.list().asScala.map(Entity.fromRecord(_)).toSeq)
+  } yield result
+
   override def findClosestEntityRelations(entityId: Id): Tx[F, Seq[Leaf]] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Find closest relations for entity by id: $entityId"))
     result <- queryRunner
