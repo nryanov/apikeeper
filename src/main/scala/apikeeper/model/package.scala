@@ -10,7 +10,7 @@ import apikeeper.model.graph.{Branch, BranchDef, Leaf}
 import io.circe.{Decoder, Encoder}
 
 package object model {
-  final case class Id(value: UUID)
+  final case class Id(id: UUID)
 
   object Id {
     def apply(value: UUID): Id = new Id(value)
@@ -18,7 +18,7 @@ package object model {
     def apply(value: String): Id = new Id(UUID.fromString(value))
   }
 
-  implicit val idShow: Show[Id] = Show.show[Id](_.value.toString)
+  implicit val idShow: Show[Id] = Show.show[Id](_.id.toString)
 
   implicit val idEncoder: Encoder[Id] = deriveEncoder[Id]
   implicit val idDecoder: Decoder[Id] = deriveDecoder[Id]

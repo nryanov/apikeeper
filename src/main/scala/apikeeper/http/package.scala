@@ -1,6 +1,7 @@
 package apikeeper
 
 import apikeeper.model.Id
+import cats.syntax.show._
 import sttp.tapir.CodecFormat.TextPlain
 import sttp.tapir.{Codec, DecodeResult}
 
@@ -11,7 +12,7 @@ package object http {
     case Success(v) => DecodeResult.Value(v)
     case Failure(f) => DecodeResult.Error(s, f)
   }
-  def encode(id: Id): String = id.value.toString
+  def encode(id: Id): String = id.show
 
   implicit val idCodec: Codec[Id, TextPlain, String] = Codec.stringPlainCodecUtf8.mapDecode(decode)(encode)
 }

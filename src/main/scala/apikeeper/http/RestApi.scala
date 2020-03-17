@@ -1,7 +1,7 @@
 package apikeeper.http
 
 import apikeeper.model.{Entity, EntityDef, Id, Relation}
-import apikeeper.model.graph.{Branch, BranchDef, Leaf}
+import apikeeper.model.graph.{BranchDef, Leaf}
 import apikeeper.repository.KeeperRepository.{IncorrectEntitiesPerPage, IncorrectPageNumber}
 import apikeeper.service.Service
 import cats.effect.{ContextShift, Sync}
