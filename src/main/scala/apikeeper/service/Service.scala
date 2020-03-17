@@ -1,7 +1,7 @@
 package apikeeper.service
 
 import apikeeper.model.{Entity, EntityDef, Id, Relation}
-import apikeeper.model.graph.{Branch, Leaf}
+import apikeeper.model.graph.{Branch, BranchDef, Leaf}
 
 trait Service[F[_]] {
   def findEntity(entityId: Id): F[Option[Entity]]
@@ -16,9 +16,9 @@ trait Service[F[_]] {
 
   def createEntities(entityDefs: Seq[EntityDef]): F[Seq[Entity]]
 
-  def createRelation(branch: Branch): F[Relation]
+  def createRelation(branchDef: BranchDef): F[Relation]
 
-  def createRelations(branches: Seq[Branch]): F[Seq[Relation]]
+  def createRelations(branchDefs: Seq[BranchDef]): F[Seq[Relation]]
 
   def removeEntity(entityId: Id): F[Unit]
 

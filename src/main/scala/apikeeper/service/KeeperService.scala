@@ -10,7 +10,7 @@ import apikeeper.datasource.Transactor
 import apikeeper.datasource.Transactor.Tx
 import apikeeper.model
 import apikeeper.model.{Entity, EntityDef, Relation}
-import apikeeper.model.graph.{Branch, Leaf}
+import apikeeper.model.graph.{Branch, BranchDef, Leaf}
 import apikeeper.repository.KeeperRepository
 import apikeeper.service.internal.IdGenerator
 
@@ -47,18 +47,20 @@ class KeeperService[F[_]: Sync](
       })
     } yield entities
 
-  override def createRelation(branch: Branch): F[Relation] =
-    transact(repository.createRelation(branch))
+  override def createRelation(branchDef: BranchDef): F[Relation] =
+    for {
+      id <- idGenerator.next()
+      branch = Branch(id, branchDef)
+      relation <- transact(repository.createRelation(branch))
+    } yield relation
 
-  override def createRelations(branches: Seq[Branch]): F[Seq[Relation]] =
-    transact(
-      branches.toList
-        .map(repository.createRelation(_).map(List(_)))
-        .reduce[Tx[F, List[Relation]]] {
-          case (l, r) => l.flatMap(r1 => r.map(r2 => r1 ::: r2))
-        }
-        .map(_.toSeq)
-    )
+  override def createRelations(branchDefs: Seq[BranchDef]): F[Seq[Relation]] =
+    for {
+      branches <- branchDefs.toList.traverse(branchDef => idGenerator.next().map(id => Branch(id, branchDef)))
+      relations <- transact(branches.map(repository.createRelation(_).map(List(_))).reduce[Tx[F, List[Relation]]] {
+        case (l, r) => l.flatMap(r1 => r.map(r2 => r1 ::: r2))
+      })
+    } yield relations
 
   override def removeEntity(entityId: model.Id): F[Unit] =
     transact(repository.removeEntity(entityId))
