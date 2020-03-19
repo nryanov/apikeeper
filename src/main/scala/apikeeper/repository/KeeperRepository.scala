@@ -42,7 +42,7 @@ class KeeperRepository[F[_]](
       )
   } yield result
 
-  override def findEntitiesByNameLike(pattern: String, limit: Option[Int]): Tx[F, Seq[Entity]] = for {
+  override def findEntitiesByNameLike(pattern: String, limit: Int = 10): Tx[F, Seq[Entity]] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Find entities by name: $pattern"))
     result <- queryRunner
       .run(
@@ -53,7 +53,7 @@ class KeeperRepository[F[_]](
             |RETURN DISTINCT self.id, self.entityType, self.name, self.description
             |LIMIT $limit
             |""".stripMargin,
-          Values.parameters("pattern", s".*?$pattern.*?", "limit", Int.box(limit.getOrElse(1)))
+          Values.parameters("pattern", s".*?$pattern.*?", "limit", Int.box(limit))
         )
       )
       .map(_.list().asScala.map(Entity.fromRecord(_)).toSeq)
@@ -149,7 +149,7 @@ class KeeperRepository[F[_]](
     )
   } yield ()
 
-  override def findEntities(page: Int, countPerPage: Int): Tx[F, Seq[Entity]] = for {
+  override def findEntities(page: Int, countPerPage: Int = 10): Tx[F, Seq[Entity]] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Find entities ($countPerPage): $page"))
     _ <- Kleisli.liftF(F.ensure(page.pure)(IncorrectPageNumber)(_ >= 0))
     _ <- Kleisli.liftF(F.ensure(countPerPage.pure)(IncorrectEntitiesPerPage)(_ >= 1))

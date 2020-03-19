@@ -13,7 +13,12 @@ import org.neo4j.driver.Driver
 object ApiKeeper extends IOApp {
   override def run(args: List[String]): IO[ExitCode] = for {
     cfg <- Configuration.create[IO]
-    _ <- Injector().produceF[IO](appModule[IO](cfg), GCMode.NoGC).use(_.get[HttpServer[IO]].run())
+    _ <- Injector().produceF[IO](appModule[IO](cfg), GCMode.NoGC).use { locator =>
+      val server = locator.get[HttpServer[IO]]
+      val migrator = locator.get[Migration[IO]]
+
+      migrator.migrate().flatMap(_ => server.run())
+    }
   } yield ExitCode.Success
 
   def appModule[F[_]: TagK: ConcurrentEffect: ContextShift: Timer](configuration: Configuration) = {

@@ -1,12 +1,14 @@
 package apikeeper
 
 import cats.Show
+import cats.syntax.show._
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.semiauto._
 import java.util.UUID
 
 import apikeeper.model.graph.{Branch, BranchDef, Leaf}
+import io.circe.Decoder.Result
 import io.circe.{Decoder, Encoder}
 
 package object model {
@@ -20,8 +22,11 @@ package object model {
 
   implicit val idShow: Show[Id] = Show.show[Id](_.id.toString)
 
-  implicit val idEncoder: Encoder[Id] = deriveEncoder[Id]
-  implicit val idDecoder: Decoder[Id] = deriveDecoder[Id]
+  implicit val idEncoder: Encoder[Id] = (a: Id) => Json.fromString(a.show)
+  implicit val idDecoder: Decoder[Id] = (c: HCursor) =>
+    for {
+      id <- c.as[String]
+    } yield Id(id)
 
   implicit val entityEncoder: Encoder[Entity] = deriveEncoder[Entity]
   implicit val entityDecoder: Decoder[Entity] = deriveDecoder[Entity]

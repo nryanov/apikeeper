@@ -16,7 +16,7 @@ class Migration[F[_]](transactor: Transactor[F], queryRunner: QueryRunner[F])(im
     _ <- createEntityConstraint()
     _ <- createRelationConstraint()
     _ <- createEntityNameIndex()
-  } yield ())
+  } yield ()).handleError(_ => ()) // if any constraint is already exist
 
   def clean(): F[Unit] = transact(for {
     _ <- dropEntityConstraint()

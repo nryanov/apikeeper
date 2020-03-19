@@ -19,7 +19,7 @@ import izumi.distage.model.Locator
 import izumi.distage.model.definition.DIResource
 import org.neo4j.driver.Driver
 import org.http4s.implicits._
-import org.http4s.{EntityDecoder, Method, Request, Response, Status}
+import org.http4s.{EntityDecoder, Method, Request, Response, Status, Uri}
 import org.http4s.circe.CirceEntityDecoder._
 import org.http4s.circe.CirceEntityEncoder._
 
@@ -86,7 +86,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
 
       for {
         entity <- service.createEntity(entityDef)
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity".withQueryParam("id", entity.id.show))))
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/v1/entity/${entity.id.show}"))))
       } yield {
         checkPredicate[Option[Entity]](response, Status.Ok, _.contains(entity))
       }
@@ -100,10 +100,11 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
 
       for {
         entity <- service.createEntity(entityDef)
-        _ <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/entity").withEntity(entity.id)))
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity".withQueryParam("id", entity.id.show))))
+        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/v1/entity/${entity.id.show}"))))
+        result <- service.findEntity(entity.id)
       } yield {
-        checkPredicate[Option[Entity]](response, Status.Ok, _.isEmpty)
+        checkStatus[Option[Entity]](response, Status.Ok)
+        assert(result.isEmpty)
       }
     }
 
@@ -117,12 +118,11 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity1 <- service.createEntity(entityDef1)
         entity2 <- service.createEntity(entityDef2)
-        _ <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/entity").withEntity(Seq(entity1.id, entity2.id))))
-        response <- run(
-          rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity".withQueryParam("page", 1).withQueryParam("entries", 1)))
-        )
+        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/entity/").withEntity(Seq(entity1.id, entity2.id))))
+        result <- service.findEntities(1, 10)
       } yield {
-        checkPredicate[Seq[Entity]](response, Status.Ok, _.isEmpty)
+        checkStatus[Seq[Entity]](response, Status.Ok)
+        assert(result.isEmpty)
       }
     }
 
@@ -130,9 +130,10 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       val rest = locator.get[RestApi[IO]].route
 
       for {
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity".withQueryParam("id", "1"))))
+        id <- fixedUUID.next()
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/v1/entity/${id.show}"))))
       } yield {
-        checkPredicate[Option[Entity]](response, Status.Ok, _.isEmpty)
+        checkStatus[Option[Entity]](response, Status.Ok)
       }
     }
 
@@ -143,25 +144,10 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
 
       for {
         response <- run(
-          rest.run(Request[IO](method = Method.POST, uri = uri"/v1/entity").withEntity(entityDef))
+          rest.run(Request[IO](method = Method.POST, uri = uri"/v1/entity/").withEntity(entityDef))
         )
       } yield {
         checkStatus[Entity](response, Status.Ok)
-      }
-    }
-
-    "createEntities" in runDI { locator =>
-      val rest = locator.get[RestApi[IO]].route
-
-      val entityDef1 = EntityDef(EntityType.Service, "service1")
-      val entityDef2 = EntityDef(EntityType.Service, "service2")
-
-      for {
-        response <- run(
-          rest.run(Request[IO](method = Method.POST, uri = uri"/v1/entity").withEntity(Seq(entityDef1, entityDef2)))
-        )
-      } yield {
-        checkPredicate[Seq[Entity]](response, Status.Ok, _.size == 2)
       }
     }
 
@@ -174,7 +160,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity <- service.createEntity(entityDef)
         response <- run(
-          rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity".withQueryParam("page", 1).withQueryParam("entries", 1)))
+          rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/".withQueryParam("page", 1).withQueryParam("entries", 1)))
         )
       } yield {
         check[Seq[Entity]](response, Status.Ok, Seq(entity))
@@ -191,7 +177,11 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         _ <- service.createEntity(entityDef)
         entity <- service.createEntity(anotherDef)
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity".withQueryParam("name", "tor"))))
+        response <- run(
+          rest.run(
+            Request[IO](method = Method.GET, uri = uri"/v1/entity/filter".withQueryParam("name", "tor").withQueryParam("entries", 1))
+          )
+        )
       } yield {
         check[Seq[Entity]](response, Status.Ok, Seq(entity))
       }
@@ -209,7 +199,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity2 <- service.createEntity(anotherDef)
         branchDef = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
         relation <- service.createRelation(branchDef)
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/relation".withQueryParam("id", entity1.id.show))))
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/v1/entity/${entity1.id.show}/relation"))))
       } yield {
         check[Seq[Leaf]](response, Status.Ok, Seq(Leaf(entity2, relation)))
       }
@@ -227,10 +217,13 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity2 <- service.createEntity(anotherDef)
         branchDef = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
         _ <- service.createRelation(branchDef)
-        _ <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/entity/relation".withQueryParam("id", entity1.id.show))))
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/relation".withQueryParam("id", entity1.id.show))))
+        response <- run(
+          rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/v1/entity/${entity1.id.show}/relation")))
+        )
+        result <- service.findClosestEntityRelations(entity1.id)
       } yield {
-        checkPredicate[Seq[Leaf]](response, Status.Ok, _.isEmpty)
+        assert(result.isEmpty)
+        checkStatus[Seq[Leaf]](response, Status.Ok)
       }
     }
 
@@ -246,10 +239,11 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity2 <- service.createEntity(anotherDef)
         branchDef = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
         relation <- service.createRelation(branchDef)
-        _ <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/relation".withQueryParam("id", relation.id.show))))
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/relation".withQueryParam("id", entity1.id.show))))
+        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/v1/relation/${relation.id.show}"))))
+        result <- service.findClosestEntityRelations(entity1.id)
       } yield {
-        checkPredicate[Seq[Leaf]](response, Status.Ok, _.isEmpty)
+        assert(result.isEmpty)
+        checkStatus[Seq[Leaf]](response, Status.Ok)
       }
     }
 
@@ -264,27 +258,9 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity1 <- service.createEntity(entityDef)
         entity2 <- service.createEntity(anotherDef)
         branchDef = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
-        response <- run(rest.run(Request[IO](method = Method.POST, uri = uri"/v1/relation").withEntity(branchDef)))
+        response <- run(rest.run(Request[IO](method = Method.POST, uri = uri"/v1/relation/").withEntity(branchDef)))
       } yield {
         checkStatus[Relation](response, Status.Ok)
-      }
-    }
-
-    "createRelations" in runDI { locator =>
-      val service = locator.get[Service[IO]]
-      val rest = locator.get[RestApi[IO]].route
-
-      val entityDef = EntityDef(EntityType.Service, "service")
-      val anotherDef = EntityDef(EntityType.Storage, "storage")
-
-      for {
-        entity1 <- service.createEntity(entityDef)
-        entity2 <- service.createEntity(anotherDef)
-        branchDef1 = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
-        branchDef2 = BranchDef(entity1.id, RelationDef(RelationType.Out), entity2.id)
-        response <- run(rest.run(Request[IO](method = Method.POST, uri = uri"/v1/relation").withEntity(Seq(branchDef1, branchDef2))))
-      } yield {
-        checkPredicate[Seq[Relation]](response, Status.Ok, _.size == 2)
       }
     }
 
@@ -302,10 +278,11 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         branchDef2 = BranchDef(entity1.id, RelationDef(RelationType.Out), entity2.id)
         relation1 <- service.createRelation(branchDef1)
         relation2 <- service.createRelation(branchDef2)
-        _ <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/relation").withEntity(Seq(relation1.id, relation2.id))))
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/relation".withQueryParam("id", entity1.id.show))))
+        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/relation/").withEntity(Seq(relation1.id, relation2.id))))
+        result <- service.findClosestEntityRelations(entity1.id)
       } yield {
-        checkPredicate[Seq[Relation]](response, Status.Ok, _.isEmpty)
+        assert(result.isEmpty)
+        checkStatus[Seq[Relation]](response, Status.Ok)
       }
     }
   }
