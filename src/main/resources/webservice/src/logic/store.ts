@@ -1,10 +1,10 @@
 import {createStore, applyMiddleware, Store, Middleware} from "redux";
 import thunk from 'redux-thunk';
 import { reducer } from './reducer'
-import {KeeperActions, State} from "./types";
+import {EntityProps, EntityState, KeeperActions, State} from "./types";
 
 let initialState: State = {
-    entityNames: [],
+    entityProps: [],
     entityStates: {}
 };
 

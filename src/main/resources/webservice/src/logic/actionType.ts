@@ -1,9 +1,7 @@
 export let FIND_ENTITIES = "FIND_ENTITIES" as const;
 export let FIND_ENTITY = "FIND_ENTITY" as const;
 export let CREATE_ENTITY = "CREATE_ENTITY" as const;
-export let CREATE_ENTITIES = "CREATE_ENTITIES" as const;
 export let CREATE_RELATION = "CREATE_RELATION" as const;
-export let CREATE_RELATIONS = "CREATE_RELATIONS" as const;
 export let FIND_CLOSEST_ENTITY_RELATIONS = "FIND_CLOSEST_ENTITY_RELATIONS" as const;
 export let REMOVE_ENTITY = "REMOVE_ENTITY" as const;
 export let REMOVE_RELATION = "REMOVE_RELATION" as const;
