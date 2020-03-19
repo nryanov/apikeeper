@@ -61,7 +61,7 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
         entity2 = Entity(Id(id2), EntityType.Service, "service")
         task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
         _ <- transact(task)
-        result <- transact(apiRepository.findEntities(1, 5))
+        result <- transact(apiRepository.findEntities(page = 1, countPerPage = 5))
       } yield assertResult(Seq(entity1, entity2))(result)
     }
 
@@ -74,7 +74,7 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
         task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
         _ <- transact(task)
         // will find first entity because limit will be equal to 1
-        result <- transact(apiRepository.findEntitiesByNameLike("s"))
+        result <- transact(apiRepository.findEntitiesByNameLike(pattern = "s", limit = 1))
       } yield assertResult(Seq(entity1))(result)
     }
 
