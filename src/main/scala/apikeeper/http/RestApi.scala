@@ -1,11 +1,10 @@
 package apikeeper.http
 
-import apikeeper.model.{Entity, Id, Relation}
-import apikeeper.model.graph.{Branch, Leaf}
+import apikeeper.model.{Entity, EntityDef, Id, Relation}
+import apikeeper.model.graph.{BranchDef, Leaf}
 import apikeeper.repository.KeeperRepository.{IncorrectEntitiesPerPage, IncorrectPageNumber}
 import apikeeper.service.Service
 import cats.effect.{ContextShift, Sync}
-import cats.syntax.applicative._
 import cats.syntax.applicativeError._
 import cats.syntax.functor._
 import cats.syntax.either._
@@ -24,50 +23,54 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
     endpoint.in(apiVersion).errorOut(statusCode.and(jsonBody[ErrorInfo]))
 
   val findEntityEndpoint: Endpoint[Id, (StatusCode, ErrorInfo), Option[Entity], Nothing] =
-    baseEndpoint.get.in("entity").in(query[Id]("id")).out(jsonBody[Option[Entity]])
+    baseEndpoint.get.in("entity").in(path[Id]).out(jsonBody[Option[Entity]])
 
   val findEntityRoute = findEntityEndpoint.toRoutes(id => toRoute(service.findEntity(id)))
 
-  val findEntitiesEndpoint: Endpoint[(Int, Option[Int]), (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
-    baseEndpoint.get.in("entity").in(query[Int]("page")).in(query[Option[Int]]("entries")).out(jsonBody[Seq[Entity]])
+  val findEntitiesEndpoint: Endpoint[(Int, Int), (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
+    baseEndpoint.get
+      .in("entity")
+      .in(query[Int]("page").validate(Validator.min(1)))
+      .in(query[Int]("entries").validate(Validator.min(1)))
+      .out(jsonBody[Seq[Entity]])
 
   val findEntitiesRoute =
     findEntitiesEndpoint.toRoutes {
-      case (page, count) => toRoute(service.findEntities(page, count.getOrElse(10)))
+      case (page, count) => toRoute(service.findEntities(page, count))
+    }
+
+  val findEntitiesByNameEndpoint: Endpoint[(String, Int), (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
+    baseEndpoint.get
+      .in("entity" / "filter")
+      .in(query[String]("name"))
+      .in(query[Int]("entries").validate(Validator.min(1)))
+      .out(jsonBody[Seq[Entity]])
+
+  val findEntitiesByNameRoute =
+    findEntitiesByNameEndpoint.toRoutes {
+      case (pattern, count) => toRoute(service.findEntitiesByNameLike(pattern, count))
     }
 
   val findClosestEntityRelationsEndpoint: Endpoint[Id, (StatusCode, ErrorInfo), Seq[Leaf], Nothing] =
-    baseEndpoint.get.in("entity" / "relation").in(query[Id]("id")).out(jsonBody[Seq[Leaf]])
+    baseEndpoint.get.in("entity").in(path[Id]).in("relation").out(jsonBody[Seq[Leaf]])
 
   val findClosestEntityRelationsRoute =
     findClosestEntityRelationsEndpoint.toRoutes(id => toRoute(service.findClosestEntityRelations(id)))
 
-  val createEntityEndpoint: Endpoint[Entity, (StatusCode, ErrorInfo), Entity, Nothing] =
-    baseEndpoint.post.in("entity").in(jsonBody[Entity]).out(jsonBody[Entity])
+  val createEntityEndpoint: Endpoint[EntityDef, (StatusCode, ErrorInfo), Entity, Nothing] =
+    baseEndpoint.post.in("entity").in(jsonBody[EntityDef]).out(jsonBody[Entity])
 
   val createEntityRoute =
-    createEntityEndpoint.toRoutes(entity => toRoute(service.createEntity(entity)))
+    createEntityEndpoint.toRoutes(entityDef => toRoute(service.createEntity(entityDef)))
 
-  val createEntitiesEndpoint: Endpoint[Seq[Entity], (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
-    baseEndpoint.post.in("entity").in(jsonBody[Seq[Entity]]).out(jsonBody[Seq[Entity]])
-
-  val createEntitiesRoute =
-    createEntitiesEndpoint.toRoutes(entities => toRoute(service.createEntities(entities)))
-
-  val createRelationEndpoint: Endpoint[Branch, (StatusCode, ErrorInfo), Relation, Nothing] =
-    baseEndpoint.post.in("relation").in(jsonBody[Branch]).out(jsonBody[Relation])
+  val createRelationEndpoint: Endpoint[BranchDef, (StatusCode, ErrorInfo), Relation, Nothing] =
+    baseEndpoint.post.in("relation").in(jsonBody[BranchDef]).out(jsonBody[Relation])
 
   val createRelationRoute =
     createRelationEndpoint.toRoutes(branch => toRoute(service.createRelation(branch)))
 
-  val createRelationsEndpoint: Endpoint[Seq[Branch], (StatusCode, ErrorInfo), Seq[Relation], Nothing] =
-    baseEndpoint.post.in("relation").in(jsonBody[Seq[Branch]]).out(jsonBody[Seq[Relation]])
-
-  val createRelationsRoute =
-    createRelationsEndpoint.toRoutes(branches => toRoute(service.createRelations(branches)))
-
   val removeEntityEndpoint: Endpoint[Id, (StatusCode, ErrorInfo), Unit, Nothing] =
-    baseEndpoint.delete.in("entity").in(jsonBody[Id])
+    baseEndpoint.delete.in("entity").in(path[Id])
 
   val removeEntityRoute =
     removeEntityEndpoint.toRoutes(id => toRoute(service.removeEntity(id)))
@@ -79,13 +82,13 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
     removeEntitiesEndpoint.toRoutes(ids => toRoute(service.removeEntities(ids)))
 
   val removeAllEntityRelationsEndpoint: Endpoint[Id, (StatusCode, ErrorInfo), Unit, Nothing] =
-    baseEndpoint.delete.in("entity" / "relation").in(jsonBody[Id])
+    baseEndpoint.delete.in("entity").in(path[Id]).in("relation")
 
   val removeAllEntityRelationsRoute =
     removeAllEntityRelationsEndpoint.toRoutes(id => toRoute(service.removeAllEntityRelations(id)))
 
   val removeRelationEndpoint: Endpoint[Id, (StatusCode, ErrorInfo), Unit, Nothing] =
-    baseEndpoint.delete.in("relation").in(jsonBody[Id])
+    baseEndpoint.delete.in("relation").in(path[Id])
 
   val removeRelationRoute =
     removeRelationEndpoint.toRoutes(id => toRoute(service.removeRelation(id)))
@@ -108,10 +111,9 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
   val route: HttpRoutes[F] = findEntityRoute
     .combineK(findEntitiesRoute)
     .combineK(findClosestEntityRelationsRoute)
+    .combineK(findEntitiesByNameRoute)
     .combineK(createEntityRoute)
-    .combineK(createEntitiesRoute)
     .combineK(createRelationRoute)
-    .combineK(createRelationsRoute)
     .combineK(removeEntityRoute)
     .combineK(removeEntitiesRoute)
     .combineK(removeAllEntityRelationsRoute)

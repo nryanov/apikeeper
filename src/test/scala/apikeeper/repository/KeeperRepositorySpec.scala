@@ -1,15 +1,16 @@
 package apikeeper.repository
 
+import cats.~>
+import cats.syntax.option._
+import org.neo4j.driver.Driver
+import org.scalatest.BeforeAndAfterEach
+import com.dimafeng.testcontainers.Neo4jContainer
+import com.dimafeng.testcontainers.scalatest.TestContainerForAll
 import apikeeper.datasource.Transactor.Tx
 import apikeeper.{IOSpec, Neo4jSettings}
 import apikeeper.datasource.{DataStorage, QueryRunner, Transactor}
 import apikeeper.model.graph.{Branch, Leaf}
 import apikeeper.model.{Entity, EntityType, Id, Relation, RelationType}
-import cats.~>
-import com.dimafeng.testcontainers.Neo4jContainer
-import com.dimafeng.testcontainers.scalatest.TestContainerForAll
-import org.neo4j.driver.Driver
-import org.scalatest.BeforeAndAfterEach
 
 class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAndAfterEach {
   override val containerDef: Neo4jContainer.Def = Neo4jContainer.Def(dockerImageName = "neo4j:4.0.0")
@@ -20,7 +21,8 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
   private var transact: ~>[Tx[F, *], F] = _
 
   override def afterContainersStart(container: Neo4jContainer): Unit = {
-    val dataStorage = DataStorage[F](Neo4jSettings(container.boltUrl, container.username, container.password)).connect().allocated.unsafeRunSync()
+    val dataStorage =
+      DataStorage[F](Neo4jSettings(container.boltUrl, container.username, container.password)).connect().allocated.unsafeRunSync()
     driver = dataStorage._1
     finalizers = dataStorage._2
     val transactor = Transactor[F](driver)
@@ -53,14 +55,39 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "find entity definitions from first page" in runF {
       for {
-        id1 <- fixedUUID.randomUUI()
-        id2 <- fixedUUID.randomUUI()
+        id1 <- fixedUUID.randomUUID()
+        id2 <- fixedUUID.randomUUID()
         entity1 = Entity(Id(id1), EntityType.Service, "service")
         entity2 = Entity(Id(id2), EntityType.Service, "service")
         task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
         _ <- transact(task)
-        result <- transact(apiRepository.findEntities(1, 5))
+        result <- transact(apiRepository.findEntities(page = 1, countPerPage = 5))
       } yield assertResult(Seq(entity1, entity2))(result)
+    }
+
+    "find entity definitions by name pattern (1)" in runF {
+      for {
+        id1 <- fixedUUID.randomUUID()
+        id2 <- fixedUUID.randomUUID()
+        entity1 = Entity(Id(id1), EntityType.Storage, "storage")
+        entity2 = Entity(Id(id2), EntityType.Service, "service")
+        task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
+        _ <- transact(task)
+        // will find first entity because limit will be equal to 1
+        result <- transact(apiRepository.findEntitiesByNameLike(pattern = "s", limit = 1))
+      } yield assertResult(Seq(entity1))(result)
+    }
+
+    "find entity definitions by name pattern (2)" in runF {
+      for {
+        id1 <- fixedUUID.randomUUID()
+        id2 <- fixedUUID.randomUUID()
+        entity1 = Entity(Id(id1), EntityType.Storage, "storage")
+        entity2 = Entity(Id(id2), EntityType.Service, "service")
+        task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
+        _ <- transact(task)
+        result <- transact(apiRepository.findEntitiesByNameLike("ervic"))
+      } yield assertResult(Seq(entity2))(result)
     }
 
     "remove entity definition" in runF {
@@ -80,8 +107,8 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "create relation" in runF {
       for {
-        id1 <- fixedUUID.randomUUI().map(Id(_))
-        id2 <- fixedUUID.randomUUI().map(Id(_))
+        id1 <- fixedUUID.randomUUID().map(Id(_))
+        id2 <- fixedUUID.randomUUID().map(Id(_))
         entity1 = Entity(id1, EntityType.Service, "service1")
         entity2 = Entity(id2, EntityType.Service, "service2")
         _ <- transact(apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2)))
@@ -93,13 +120,13 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "find closest entity relations" in runF {
       for {
-        id1 <- fixedUUID.randomUUI().map(Id(_))
-        id2 <- fixedUUID.randomUUI().map(Id(_))
+        id1 <- fixedUUID.randomUUID().map(Id(_))
+        id2 <- fixedUUID.randomUUID().map(Id(_))
         entity1 = Entity(id1, EntityType.Service, "service1")
         entity2 = Entity(id2, EntityType.Service, "service2")
         _ <- transact(apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2)))
-        relId1 <- fixedUUID.randomUUI()
-        relId2 <- fixedUUID.randomUUI()
+        relId1 <- fixedUUID.randomUUID()
+        relId2 <- fixedUUID.randomUUID()
         relation1 = Relation(Id(relId1), RelationType.In)
         relation2 = Relation(Id(relId2), RelationType.Out)
         _ <- transact(apiRepository.createRelation(Branch(id1, relation1, id2)))
@@ -110,13 +137,13 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "remove all entity relations" in runF {
       for {
-        id1 <- fixedUUID.randomUUI().map(Id(_))
-        id2 <- fixedUUID.randomUUI().map(Id(_))
+        id1 <- fixedUUID.randomUUID().map(Id(_))
+        id2 <- fixedUUID.randomUUID().map(Id(_))
         entity1 = Entity(id1, EntityType.Service, "service1")
         entity2 = Entity(id2, EntityType.Service, "service2")
         _ <- transact(apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2)))
-        relId1 <- fixedUUID.randomUUI().map(Id(_))
-        relId2 <- fixedUUID.randomUUI().map(Id(_))
+        relId1 <- fixedUUID.randomUUID().map(Id(_))
+        relId2 <- fixedUUID.randomUUID().map(Id(_))
         relation1 = Relation(relId1, RelationType.In)
         relation2 = Relation(relId2, RelationType.Out)
         _ <- transact(apiRepository.createRelation(Branch(id1, relation1, id2)))
@@ -132,13 +159,13 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "remove relation by id" in runF {
       for {
-        id1 <- fixedUUID.randomUUI().map(Id(_))
-        id2 <- fixedUUID.randomUUI().map(Id(_))
+        id1 <- fixedUUID.randomUUID().map(Id(_))
+        id2 <- fixedUUID.randomUUID().map(Id(_))
         entity1 = Entity(id1, EntityType.Service, "service1")
         entity2 = Entity(id2, EntityType.Service, "service2")
         _ <- transact(apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2)))
-        relId1 <- fixedUUID.randomUUI().map(Id(_))
-        relId2 <- fixedUUID.randomUUI().map(Id(_))
+        relId1 <- fixedUUID.randomUUID().map(Id(_))
+        relId2 <- fixedUUID.randomUUID().map(Id(_))
         relation1 = Relation(relId1, RelationType.In)
         relation2 = Relation(relId2, RelationType.Out)
         _ <- transact(apiRepository.createRelation(Branch(id1, relation1, id2)))

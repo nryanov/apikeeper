@@ -6,7 +6,9 @@ import apikeeper.model.{Entity, Id, Relation}
 trait Repository[F[_]] {
   def findEntity(entityId: Id): F[Option[Entity]]
 
-  def findEntities(page: Int, countPerPage: Int = 10): F[Seq[Entity]]
+  def findEntitiesByNameLike(pattern: String, limit: Int): F[Seq[Entity]]
+
+  def findEntities(page: Int, countPerPage: Int): F[Seq[Entity]]
 
   def findClosestEntityRelations(entityId: Id): F[Seq[Leaf]]
 

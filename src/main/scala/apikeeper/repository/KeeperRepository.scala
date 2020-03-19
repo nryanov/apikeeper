@@ -31,7 +31,7 @@ class KeeperRepository[F[_]](
     result <- queryRunner
       .run(
         new Query(
-          "MATCH (self:Entity {id: $id}) RETURN DISTINCT self.id, self.entityType, self.name, self.description, self.wikiLink",
+          "MATCH (self:Entity {id: $id}) RETURN DISTINCT self.id, self.entityType, self.name, self.description",
           Values.parameters("id", entityId.show)
         )
       )
@@ -42,6 +42,23 @@ class KeeperRepository[F[_]](
       )
   } yield result
 
+  override def findEntitiesByNameLike(pattern: String, limit: Int = 10): Tx[F, Seq[Entity]] = for {
+    _ <- Kleisli.liftF(Logger[F].info(s"Find entities by name: $pattern"))
+    result <- queryRunner
+      .run(
+        new Query(
+          """
+            |MATCH (self:Entity)
+            |WHERE self.name =~ $pattern
+            |RETURN DISTINCT self.id, self.entityType, self.name, self.description
+            |LIMIT $limit
+            |""".stripMargin,
+          Values.parameters("pattern", s".*?$pattern.*?", "limit", Int.box(limit))
+        )
+      )
+      .map(_.list().asScala.map(Entity.fromRecord(_)).toSeq)
+  } yield result
+
   override def findClosestEntityRelations(entityId: Id): Tx[F, Seq[Leaf]] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Find closest relations for entity by id: $entityId"))
     result <- queryRunner
@@ -49,7 +66,7 @@ class KeeperRepository[F[_]](
         new Query(
           """
           |MATCH (:Entity {id: $id})-[rel:Relation]-(e:Entity)
-          |RETURN rel.id, rel.relationType, e.id, e.entityType, e.name, e.description, e.wikiLink
+          |RETURN rel.id, rel.relationType, e.id, e.entityType, e.name, e.description
           |""".stripMargin,
           Values.parameters("id", entityId.show)
         )
@@ -69,7 +86,7 @@ class KeeperRepository[F[_]](
     _ <- Kleisli.liftF(Logger[F].info(s"Create entity: $entity"))
     _ <- queryRunner.run(
       new Query(
-        "CREATE (self:Entity {id: $id, entityType: $entityType, name: $name, description: $description, wikiLink: $wikiLink})",
+        "CREATE (self:Entity {id: $id, entityType: $entityType, name: $name, description: $description})",
         Entity.toValue(entity)
       )
     )
@@ -132,7 +149,7 @@ class KeeperRepository[F[_]](
     )
   } yield ()
 
-  override def findEntities(page: Int, countPerPage: Int): Tx[F, Seq[Entity]] = for {
+  override def findEntities(page: Int, countPerPage: Int = 10): Tx[F, Seq[Entity]] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Find entities ($countPerPage): $page"))
     _ <- Kleisli.liftF(F.ensure(page.pure)(IncorrectPageNumber)(_ >= 0))
     _ <- Kleisli.liftF(F.ensure(countPerPage.pure)(IncorrectEntitiesPerPage)(_ >= 1))
@@ -141,7 +158,7 @@ class KeeperRepository[F[_]](
         new Query(
           """
           |MATCH (self:Entity)
-          |RETURN DISTINCT self.id, self.entityType, self.name, self.description, self.wikiLink
+          |RETURN DISTINCT self.id, self.entityType, self.name, self.description
           |SKIP $skip LIMIT $limit
           |""".stripMargin,
           Values.parameters("skip", Int.box(countPerPage * (page - 1)), "limit", Int.box(countPerPage))
