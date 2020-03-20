@@ -161,7 +161,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity <- service.createEntity(entityDef)
         updatedEntity = entity.copy(name = "updatedService")
         response <- run(
-          rest.run(Request[IO](method = Method.PUT, uri = uri"/v1/entity/").withEntity(entityDef))
+          rest.run(Request[IO](method = Method.PUT, uri = uri"/v1/entity/").withEntity(updatedEntity))
         )
         result <- service.findEntity(entity.id)
       } yield {

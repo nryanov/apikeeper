@@ -50,7 +50,7 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
         entity = Entity(Id(uuid), EntityType.Service, "service")
         createdEntity <- transact(apiRepository.createEntity(entity))
         updatedEntity = createdEntity.copy(name = "updatedService")
-        _ <- transact(apiRepository.updateEntity(entity))
+        _ <- transact(apiRepository.updateEntity(updatedEntity))
         result <- transact(apiRepository.findEntity(entity.id))
       } yield assert(result.contains(updatedEntity))
     }
