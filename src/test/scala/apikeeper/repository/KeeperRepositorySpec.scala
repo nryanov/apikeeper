@@ -36,14 +36,6 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
   override protected def afterEach(): Unit = driver.session().run("match (n) detach delete n")
 
   "keeper repository" should {
-    "create entity definition" in runF {
-      for {
-        uuid <- fixedUUID.fixedUUID()
-        entity = Entity(Id(uuid), EntityType.Service, "service")
-        result <- transact(apiRepository.createEntity(entity))
-      } yield assertResult(entity)(result)
-    }
-
     "update entity" in runF {
       for {
         uuid <- fixedUUID.fixedUUID()
@@ -53,6 +45,14 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
         _ <- transact(apiRepository.updateEntity(updatedEntity))
         result <- transact(apiRepository.findEntity(entity.id))
       } yield assert(result.contains(updatedEntity))
+    }
+
+    "create entity definition" in runF {
+      for {
+        uuid <- fixedUUID.fixedUUID()
+        entity = Entity(Id(uuid), EntityType.Service, "service")
+        result <- transact(apiRepository.createEntity(entity))
+      } yield assertResult(entity)(result)
     }
 
     "find entity definition" in runF {

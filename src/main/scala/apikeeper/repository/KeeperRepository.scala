@@ -98,7 +98,7 @@ class KeeperRepository[F[_]](
       new Query(
         """
           |MATCH (self:Entity {id: $id})
-          |SET self += {name: $name, entityType: $entityType, description: $description}
+          |SET self += {entityType: $entityType, name: $name, description: $description}
           |""".stripMargin,
         Entity.toValue(entity)
       )
