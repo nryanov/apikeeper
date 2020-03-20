@@ -11,11 +11,33 @@ export const reducer: Reducer<State, KeeperActions> = (state: State, action: Kee
                 entityProps: _.uniqBy([...state.entityProps, ...action.entityProps], (props) => props.id)
             };
         case Type.FIND_ENTITY:
-            return state;
+            return {
+                ...state,
+                entityProps: _.uniqBy([...state.entityProps, action.entityProps], (props) => props.id)
+            };
         case Type.CREATE_ENTITY:
-            return state;
+            return {
+                ...state,
+                entityProps: [...state.entityProps, action.entityProps]
+            };
         case Type.CREATE_RELATION:
-            return state;
+            let branchDef = action.branchDef;
+            let relationInfo = action.relation;
+
+            let newEntityStates = {...state.entityStates};
+            let leftEntity = newEntityStates[branchDef.left.id];
+            let rightEntity = newEntityStates[branchDef.right.id];
+
+            if (relationInfo.relationType.type === 'In') {
+                
+            } else {
+
+            }
+
+            return {
+                ...state,
+                entityStates: newEntityStates
+            };
         case Type.FIND_CLOSEST_ENTITY_RELATIONS:
             return state;
         case Type.REMOVE_ENTITY:

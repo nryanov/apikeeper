@@ -12,7 +12,7 @@ export type RelationType = {
  * UUID representation
  */
 export type Id = {
-    readonly id: String;
+    readonly id: string;
 }
 
 /**
@@ -20,7 +20,7 @@ export type Id = {
  */
 export type EntityDef = {
     readonly type: EntityType;
-    readonly name: String;
+    readonly name: string;
     readonly description: String | null;
 }
 
@@ -46,8 +46,8 @@ export type BranchDef = {
 export type EntityProps = {
     readonly id: Id;
     readonly type: EntityType;
-    readonly name: String;
-    readonly description: String | null;
+    readonly name: string;
+    readonly description: string | null;
 }
 
 /**
