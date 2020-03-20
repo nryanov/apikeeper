@@ -82,23 +82,13 @@ export type Branch = {
     readonly right: EntityProps;
 }
 
-
-/**
- * Single entity state.
- * entityProps - entity properties
- * leafs - information about all closest (1N) connections
- */
-export type EntityState = {
-    readonly entityProps: EntityProps;
-    readonly leafs: Leaf[]
-}
-
 /**
  * Application state.
  */
 export type State = {
-    readonly entityProps: EntityProps[];
-    readonly entityStates: {[key: string]: EntityState}
+    readonly entityProps: {[key: string]: EntityProps};
+    readonly entityStates: {[key: string]: Leaf[]};
+    readonly selectedEntity: Id | null;
 }
 
 type InferType<T> = T extends { [key: string]: infer U} ? U : never;

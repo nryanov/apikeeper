@@ -45,6 +45,14 @@ export const createEntity = (entityDef: EntityDef) => {
     });
 };
 
+export const updateEntity = (entity: EntityProps) => {
+    return request<EntityProps>({
+        url: `${apiPath}/entity`,
+        method: "PUT",
+        data: entity
+    });
+};
+
 export const createRelation = (branchDef: BranchDef) => {
     return request<RelationProps>({
         url: `${apiPath}/relation`,

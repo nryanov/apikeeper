@@ -1,11 +1,12 @@
 import {createStore, applyMiddleware, Store, Middleware} from "redux";
 import thunk from 'redux-thunk';
 import { reducer } from './reducer'
-import {EntityProps, EntityState, KeeperActions, State} from "./types";
+import {KeeperActions, State} from "./types";
 
 let initialState: State = {
-    entityProps: [],
-    entityStates: {}
+    entityProps: {},
+    entityStates: {},
+    selectedEntity: null
 };
 
 // tsconfig: "strictFunctionTypes": false

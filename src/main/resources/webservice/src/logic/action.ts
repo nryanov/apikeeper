@@ -8,7 +8,7 @@ import {
     REMOVE_ALL_ENTITY_RELATIONS,
     REMOVE_ENTITY,
     REMOVE_RELATION,
-    REMOVE_RELATIONS
+    REMOVE_RELATIONS, UPDATE_ENTITY
 } from "./actionType";
 import {Dispatch} from "redux";
 import * as api from './api'
@@ -20,6 +20,14 @@ export namespace actionCalls {
             entityProps: entityProps
         }
     };
+
+    export const updateEntity = (entityProps: EntityProps) => {
+        return {
+            type: UPDATE_ENTITY,
+            entityProps: entityProps
+        }
+    };
+
 
     export const findEntities = (entityProps: EntityProps[]) => {
         return {
@@ -84,6 +92,11 @@ export namespace apiCalls {
     export const createEntity = (entityDef: EntityDef) => (dispatch: Dispatch<any>) => {
         return api.createEntity(entityDef)
             .then(data => dispatch(actionCalls.createEntity(data)));
+    };
+
+    export const updateEntity = (entity: EntityProps) => (dispatch: Dispatch<any>) => {
+        return api.updateEntity(entity)
+            .then(data => dispatch(actionCalls.updateEntity(data)));
     };
 
     export const findEntities = (page: number, entries: number) => (dispatch: Dispatch) => {
