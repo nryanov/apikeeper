@@ -63,6 +63,12 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
   val createEntityRoute =
     createEntityEndpoint.toRoutes(entityDef => toRoute(service.createEntity(entityDef)))
 
+  val updateEntityEndpoint: Endpoint[Entity, (StatusCode, ErrorInfo), Entity, Nothing] =
+    baseEndpoint.put.in("entity").in(jsonBody[Entity]).out(jsonBody[Entity])
+
+  val updateEntityRoute =
+    updateEntityEndpoint.toRoutes(entity => toRoute(service.updateEntity(entity)))
+
   val createRelationEndpoint: Endpoint[BranchDef, (StatusCode, ErrorInfo), Relation, Nothing] =
     baseEndpoint.post.in("relation").in(jsonBody[BranchDef]).out(jsonBody[Relation])
 
@@ -113,6 +119,7 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
     .combineK(findClosestEntityRelationsRoute)
     .combineK(findEntitiesByNameRoute)
     .combineK(createEntityRoute)
+    .combineK(updateEntityRoute)
     .combineK(createRelationRoute)
     .combineK(removeEntityRoute)
     .combineK(removeEntitiesRoute)

@@ -15,6 +15,7 @@ class SwaggerApi[F[_]: Sync: ContextShift](restApi: RestApi[F]) {
     restApi.findClosestEntityRelationsEndpoint,
     restApi.findEntitiesByNameEndpoint,
     restApi.createEntityEndpoint,
+    restApi.updateEntityEndpoint,
     restApi.createRelationEndpoint,
     restApi.removeEntityEndpoint,
     restApi.removeEntitiesEndpoint,

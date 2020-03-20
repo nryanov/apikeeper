@@ -151,6 +151,25 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       }
     }
 
+    "updateEntity" in runDI { locator =>
+      val service = locator.get[Service[IO]]
+      val rest = locator.get[RestApi[IO]].route
+
+      val entityDef = EntityDef(EntityType.Service, "service")
+
+      for {
+        entity <- service.createEntity(entityDef)
+        updatedEntity = entity.copy(name = "updatedService")
+        response <- run(
+          rest.run(Request[IO](method = Method.PUT, uri = uri"/v1/entity/").withEntity(entityDef))
+        )
+        result <- service.findEntity(entity.id)
+      } yield {
+        checkStatus[Entity](response, Status.Ok)
+        assert(result.contains(updatedEntity))
+      }
+    }
+
     "findEntities" in runDI { locator =>
       val service = locator.get[Service[IO]]
       val rest = locator.get[RestApi[IO]].route

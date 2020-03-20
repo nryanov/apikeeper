@@ -14,6 +14,8 @@ trait Repository[F[_]] {
 
   def createEntity(entity: Entity): F[Entity]
 
+  def updateEntity(entity: Entity): F[Entity]
+
   def createRelation(node: Branch): F[Relation]
 
   def removeEntity(entityId: Id): F[Unit]

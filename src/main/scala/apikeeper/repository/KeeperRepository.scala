@@ -92,6 +92,19 @@ class KeeperRepository[F[_]](
     )
   } yield entity
 
+  override def updateEntity(entity: Entity): Tx[F, Entity] = for {
+    _ <- Kleisli.liftF(Logger[F].info(s"Update entity: $entity"))
+    _ <- queryRunner.run(
+      new Query(
+        """
+          |MATCH (self:Entity {id: $id})
+          |SET self += {name: $name, entityType: $entityType, description: $description}
+          |""".stripMargin,
+        Entity.toValue(entity)
+      )
+    )
+  } yield entity
+
   override def createRelation(node: Branch): Tx[F, Relation] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Create relation: $node"))
     relation = node.relation
