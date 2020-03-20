@@ -65,15 +65,17 @@ class KeeperRepository[F[_]](
       .run(
         new Query(
           """
-          |MATCH (:Entity {id: $id})-[rel:Relation]-(e:Entity)
-          |RETURN rel.id, rel.relationType, e.id, e.entityType, e.name, e.description
+          |MATCH (:Entity {id: $id})-[rel:Relation]->(e:Entity)
+          |RETURN rel.id, 'Downstream' as relationType, e.id, e.entityType, e.name, e.description
+          |UNION ALL
+          |MATCH (:Entity {id: $id})<-[rel:Relation]-(e:Entity)
+          |RETURN rel.id, 'Upstream' as relationType, e.id, e.entityType, e.name, e.description
           |""".stripMargin,
           Values.parameters("id", entityId.show)
         )
       )
       .map(
         _.list().asScala.map { record =>
-          println(record)
           Leaf(
             entity = Entity.fromRecord(record, "e"),
             relation = Relation.fromRecord(record, "rel")
@@ -92,18 +94,31 @@ class KeeperRepository[F[_]](
     )
   } yield entity
 
+  override def updateEntity(entity: Entity): Tx[F, Entity] = for {
+    _ <- Kleisli.liftF(Logger[F].info(s"Update entity: $entity"))
+    _ <- queryRunner.run(
+      new Query(
+        """
+          |MATCH (self:Entity {id: $id})
+          |SET self += {entityType: $entityType, name: $name, description: $description}
+          |""".stripMargin,
+        Entity.toValue(entity)
+      )
+    )
+  } yield entity
+
   override def createRelation(node: Branch): Tx[F, Relation] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Create relation: $node"))
     relation = node.relation
     (from, to) = relation.relationType match {
-      case RelationType.In  => (node.right, node.left)
-      case RelationType.Out => (node.left, node.right)
+      case RelationType.Upstream   => (node.right, node.left)
+      case RelationType.Downstream => (node.left, node.right)
     }
     _ <- queryRunner.run(
       new Query(
         """
           |MATCH (from:Entity {id: $fromId}), (to:Entity {id: $toId})
-          |CREATE (from)-[:Relation {id: $id, relationType: $relationType}]->(to)
+          |CREATE (from)-[:Relation {id: $id}]->(to)
           |""".stripMargin,
         Values.parameters(
           "fromId",
@@ -111,9 +126,7 @@ class KeeperRepository[F[_]](
           "toId",
           to.show,
           "id",
-          relation.id.show,
-          "relationType",
-          relation.relationType.entryName
+          relation.id.show
         )
       )
     )

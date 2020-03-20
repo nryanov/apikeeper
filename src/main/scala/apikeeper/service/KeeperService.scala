@@ -39,6 +39,9 @@ class KeeperService[F[_]: Sync](
     _ <- transact(repository.createEntity(entity))
   } yield entity
 
+  override def updateEntity(entity: Entity): F[Entity] =
+    transact(repository.updateEntity(entity))
+
   override def createEntities(entityDefs: Seq[EntityDef]): F[Seq[Entity]] =
     for {
       entities <- entityDefs.toList.traverse(entityDef => idGenerator.next().map(id => Entity(id, entityDef)))

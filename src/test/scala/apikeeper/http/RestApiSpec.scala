@@ -151,6 +151,25 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       }
     }
 
+    "updateEntity" in runDI { locator =>
+      val service = locator.get[Service[IO]]
+      val rest = locator.get[RestApi[IO]].route
+
+      val entityDef = EntityDef(EntityType.Service, "service")
+
+      for {
+        entity <- service.createEntity(entityDef)
+        updatedEntity = entity.copy(name = "updatedService")
+        response <- run(
+          rest.run(Request[IO](method = Method.PUT, uri = uri"/v1/entity/").withEntity(updatedEntity))
+        )
+        result <- service.findEntity(entity.id)
+      } yield {
+        checkStatus[Entity](response, Status.Ok)
+        assert(result.contains(updatedEntity))
+      }
+    }
+
     "findEntities" in runDI { locator =>
       val service = locator.get[Service[IO]]
       val rest = locator.get[RestApi[IO]].route
@@ -197,7 +216,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity1 <- service.createEntity(entityDef)
         entity2 <- service.createEntity(anotherDef)
-        branchDef = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
+        branchDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
         relation <- service.createRelation(branchDef)
         response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/v1/entity/${entity1.id.show}/relation"))))
       } yield {
@@ -215,7 +234,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity1 <- service.createEntity(entityDef)
         entity2 <- service.createEntity(anotherDef)
-        branchDef = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
+        branchDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
         _ <- service.createRelation(branchDef)
         response <- run(
           rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/v1/entity/${entity1.id.show}/relation")))
@@ -237,7 +256,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity1 <- service.createEntity(entityDef)
         entity2 <- service.createEntity(anotherDef)
-        branchDef = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
+        branchDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
         relation <- service.createRelation(branchDef)
         response <- run(rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/v1/relation/${relation.id.show}"))))
         result <- service.findClosestEntityRelations(entity1.id)
@@ -257,7 +276,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity1 <- service.createEntity(entityDef)
         entity2 <- service.createEntity(anotherDef)
-        branchDef = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
+        branchDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
         response <- run(rest.run(Request[IO](method = Method.POST, uri = uri"/v1/relation/").withEntity(branchDef)))
       } yield {
         checkStatus[Relation](response, Status.Ok)
@@ -274,8 +293,8 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity1 <- service.createEntity(entityDef)
         entity2 <- service.createEntity(anotherDef)
-        branchDef1 = BranchDef(entity1.id, RelationDef(RelationType.In), entity2.id)
-        branchDef2 = BranchDef(entity1.id, RelationDef(RelationType.Out), entity2.id)
+        branchDef1 = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
+        branchDef2 = BranchDef(entity1.id, RelationDef(RelationType.Downstream), entity2.id)
         relation1 <- service.createRelation(branchDef1)
         relation2 <- service.createRelation(branchDef2)
         response <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/relation/").withEntity(Seq(relation1.id, relation2.id))))

@@ -14,6 +14,8 @@ trait Service[F[_]] {
 
   def createEntity(entityDef: EntityDef): F[Entity]
 
+  def updateEntity(entity: Entity): F[Entity]
+
   def createEntities(entityDefs: Seq[EntityDef]): F[Seq[Entity]]
 
   def createRelation(branchDef: BranchDef): F[Relation]
