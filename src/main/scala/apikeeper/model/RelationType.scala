@@ -9,7 +9,7 @@ sealed trait RelationType extends EnumEntry
 object RelationType extends Enum[RelationType] with CirceEnum[RelationType] {
   override def values: immutable.IndexedSeq[RelationType] = findValues
 
-  case object In extends RelationType
+  case object Upstream extends RelationType
 
-  case object Out extends RelationType
+  case object Downstream extends RelationType
 }

@@ -13,14 +13,14 @@ object Relation {
 
   def fromRecord(record: Record, ref: String = "self"): Relation = {
     val id = Id(record.asString(s"$ref.id"))
-    val relationType = RelationType.withNameInsensitive(record.asString(s"$ref.relationType"))
+    val relationType = RelationType.withNameInsensitive(record.asString(s"relationType"))
 
     new Relation(id, relationType)
   }
 
   def fromNode(node: Node, ref: String = "self"): Relation = {
     val id = Id(node.asString(s"$ref.id"))
-    val relationType = RelationType.withNameInsensitive(node.asString(s"$ref.relationType"))
+    val relationType = RelationType.withNameInsensitive(node.asString(s"relationType"))
 
     new Relation(id, relationType)
   }

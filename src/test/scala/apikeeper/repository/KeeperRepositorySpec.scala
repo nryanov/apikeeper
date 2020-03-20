@@ -57,8 +57,8 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "find entity definition" in runF {
       for {
-        uuid <- fixedUUID.fixedUUID()
-        entity = Entity(Id(uuid), EntityType.Service, "service")
+        uuid <- fixedUUID.next()
+        entity = Entity(uuid, EntityType.Service, "service")
         task = apiRepository.createEntity(entity).flatMap(entity => apiRepository.findEntity(entity.id))
         saved <- transact(task)
       } yield assert(saved.contains(entity))
@@ -66,10 +66,10 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "find entity definitions from first page" in runF {
       for {
-        id1 <- fixedUUID.randomUUID()
-        id2 <- fixedUUID.randomUUID()
-        entity1 = Entity(Id(id1), EntityType.Service, "service")
-        entity2 = Entity(Id(id2), EntityType.Service, "service")
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
+        entity1 = Entity(id1, EntityType.Service, "service")
+        entity2 = Entity(id2, EntityType.Service, "service")
         task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
         _ <- transact(task)
         result <- transact(apiRepository.findEntities(page = 1, countPerPage = 5))
@@ -78,10 +78,10 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "find entity definitions by name pattern (1)" in runF {
       for {
-        id1 <- fixedUUID.randomUUID()
-        id2 <- fixedUUID.randomUUID()
-        entity1 = Entity(Id(id1), EntityType.Storage, "storage")
-        entity2 = Entity(Id(id2), EntityType.Service, "service")
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
+        entity1 = Entity(id1, EntityType.Service, "storage")
+        entity2 = Entity(id2, EntityType.Service, "service")
         task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
         _ <- transact(task)
         // will find first entity because limit will be equal to 1
@@ -91,10 +91,10 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "find entity definitions by name pattern (2)" in runF {
       for {
-        id1 <- fixedUUID.randomUUID()
-        id2 <- fixedUUID.randomUUID()
-        entity1 = Entity(Id(id1), EntityType.Storage, "storage")
-        entity2 = Entity(Id(id2), EntityType.Service, "service")
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
+        entity1 = Entity(id1, EntityType.Service, "storage")
+        entity2 = Entity(id2, EntityType.Service, "service")
         task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
         _ <- transact(task)
         result <- transact(apiRepository.findEntitiesByNameLike("ervic"))
@@ -103,12 +103,10 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "remove entity definition" in runF {
       for {
-        uuid <- fixedUUID.fixedUUID()
-        entity = Entity(Id(uuid), EntityType.Service, "service")
-        saveTask = apiRepository.createEntity(entity).flatMap(entity => apiRepository.findEntity(entity.id))
-        saved <- transact(saveTask)
-        deleteTask = apiRepository.removeEntity(entity.id)
-        _ <- transact(deleteTask)
+        uuid <- fixedUUID.next()
+        entity = Entity(uuid, EntityType.Service, "service")
+        saved <- transact(apiRepository.createEntity(entity).flatMap(entity => apiRepository.findEntity(entity.id)))
+        _ <- transact(apiRepository.removeEntity(entity.id))
         found <- transact(apiRepository.findEntity(entity.id))
       } yield {
         assert(saved.contains(entity))
@@ -118,28 +116,28 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "create relation" in runF {
       for {
-        id1 <- fixedUUID.randomUUID().map(Id(_))
-        id2 <- fixedUUID.randomUUID().map(Id(_))
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
         entity1 = Entity(id1, EntityType.Service, "service1")
         entity2 = Entity(id2, EntityType.Service, "service2")
         _ <- transact(apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2)))
         relId <- fixedUUID.fixedUUID().map(Id(_))
-        relation = Relation(relId, RelationType.In)
+        relation = Relation(relId, RelationType.Upstream)
         result <- transact(apiRepository.createRelation(Branch(id1, relation, id2)))
       } yield assertResult(relation)(result)
     }
 
     "find closest entity relations" in runF {
       for {
-        id1 <- fixedUUID.randomUUID().map(Id(_))
-        id2 <- fixedUUID.randomUUID().map(Id(_))
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
         entity1 = Entity(id1, EntityType.Service, "service1")
         entity2 = Entity(id2, EntityType.Service, "service2")
         _ <- transact(apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2)))
-        relId1 <- fixedUUID.randomUUID()
-        relId2 <- fixedUUID.randomUUID()
-        relation1 = Relation(Id(relId1), RelationType.In)
-        relation2 = Relation(Id(relId2), RelationType.Out)
+        relId1 <- fixedUUID.next()
+        relId2 <- fixedUUID.next()
+        relation1 = Relation(relId1, RelationType.Upstream)
+        relation2 = Relation(relId2, RelationType.Downstream)
         _ <- transact(apiRepository.createRelation(Branch(id1, relation1, id2)))
         _ <- transact(apiRepository.createRelation(Branch(id1, relation2, id2)))
         result <- transact(apiRepository.findClosestEntityRelations(entity1.id))
@@ -148,15 +146,15 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "remove all entity relations" in runF {
       for {
-        id1 <- fixedUUID.randomUUID().map(Id(_))
-        id2 <- fixedUUID.randomUUID().map(Id(_))
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
         entity1 = Entity(id1, EntityType.Service, "service1")
         entity2 = Entity(id2, EntityType.Service, "service2")
         _ <- transact(apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2)))
-        relId1 <- fixedUUID.randomUUID().map(Id(_))
-        relId2 <- fixedUUID.randomUUID().map(Id(_))
-        relation1 = Relation(relId1, RelationType.In)
-        relation2 = Relation(relId2, RelationType.Out)
+        relId1 <- fixedUUID.next()
+        relId2 <- fixedUUID.next()
+        relation1 = Relation(relId1, RelationType.Upstream)
+        relation2 = Relation(relId2, RelationType.Downstream)
         _ <- transact(apiRepository.createRelation(Branch(id1, relation1, id2)))
         _ <- transact(apiRepository.createRelation(Branch(id1, relation2, id2)))
         relations <- transact(apiRepository.findClosestEntityRelations(entity1.id))
@@ -170,15 +168,15 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
 
     "remove relation by id" in runF {
       for {
-        id1 <- fixedUUID.randomUUID().map(Id(_))
-        id2 <- fixedUUID.randomUUID().map(Id(_))
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
         entity1 = Entity(id1, EntityType.Service, "service1")
         entity2 = Entity(id2, EntityType.Service, "service2")
         _ <- transact(apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2)))
-        relId1 <- fixedUUID.randomUUID().map(Id(_))
-        relId2 <- fixedUUID.randomUUID().map(Id(_))
-        relation1 = Relation(relId1, RelationType.In)
-        relation2 = Relation(relId2, RelationType.Out)
+        relId1 <- fixedUUID.next()
+        relId2 <- fixedUUID.next()
+        relation1 = Relation(relId1, RelationType.Upstream)
+        relation2 = Relation(relId2, RelationType.Downstream)
         _ <- transact(apiRepository.createRelation(Branch(id1, relation1, id2)))
         _ <- transact(apiRepository.createRelation(Branch(id1, relation2, id2)))
         relations <- transact(apiRepository.findClosestEntityRelations(entity1.id))
