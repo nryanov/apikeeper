@@ -1,6 +1,6 @@
 import {BranchDef, EntityProps, KeeperActions, Leaf, RelationProps, State} from "./types";
 import * as Type from "./actionType";
-import _ from 'lodash'
+import _ from "lodash"
 import {Reducer} from "redux";
 
 export const reducer: Reducer<State, KeeperActions> = (state: State, action: KeeperActions): State => {
@@ -32,22 +32,22 @@ export const reducer: Reducer<State, KeeperActions> = (state: State, action: Kee
             let leftRelation: RelationProps;
             let rightRelation: RelationProps;
 
-            if (relationProps.relationType === 'Downstream') {
+            if (relationProps.relationType === "Downstream") {
                 leftRelation = {
-                    relationType: 'Downstream',
+                    relationType: "Downstream",
                     id: relationProps.id
                 };
                 rightRelation = {
-                    relationType: 'Upstream',
+                    relationType: "Upstream",
                     id: relationProps.id
                 };
             } else {
                 leftRelation = {
-                    relationType: 'Upstream',
+                    relationType: "Upstream",
                     id: relationProps.id
                 };
                 rightRelation = {
-                    relationType: 'Downstream',
+                    relationType: "Downstream",
                     id: relationProps.id
                 };
             }

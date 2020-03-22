@@ -1,4 +1,4 @@
-import axios, {AxiosRequestConfig} from 'axios'
+import axios, {AxiosRequestConfig} from "axios"
 import {BranchDef, EntityDef, EntityProps, Id, LeafFull, RelationProps} from "./types";
 
 const apiBase = "";

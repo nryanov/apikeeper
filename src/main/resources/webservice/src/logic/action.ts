@@ -1,4 +1,4 @@
-import {BranchDef, EntityDef, EntityProps, Id, Leaf, LeafFull, RelationProps} from "./types";
+import {BranchDef, EntityDef, EntityProps, Id, LeafFull, RelationProps} from "./types";
 import {
     CREATE_ENTITY,
     CREATE_RELATION,
@@ -12,7 +12,7 @@ import {
     SELECT_ENTITY
 } from "./actionType";
 import {Dispatch} from "redux";
-import * as api from './api'
+import * as api from "./api"
 
 export const actionCalls = {
     createEntity: (entityProps: EntityProps) => {

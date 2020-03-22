@@ -1,8 +1,8 @@
 import * as actions from "./action";
 
-export type EntityType = 'Service' | 'Storage' | 'MessageQueue';
+export type EntityType = "Service" | "Storage" | "MessageQueue";
 
-export type RelationType = 'Downstream' | 'Upstream';
+export type RelationType = "Downstream" | "Upstream";
 
 /**
  * UUID representation
