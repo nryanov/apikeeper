@@ -8,3 +8,4 @@ export let REMOVE_ENTITY = "REMOVE_ENTITY" as const;
 export let REMOVE_RELATION = "REMOVE_RELATION" as const;
 export let REMOVE_RELATIONS = "REMOVE_RELATIONS" as const;
 export let REMOVE_ALL_ENTITY_RELATIONS = "REMOVE_ALL_ENTITY_RELATIONS" as const;
+export let SELECT_ENTITY = "SELECT_ENTITY" as const;

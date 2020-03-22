@@ -1,19 +1,13 @@
 import * as actions from "./action";
 
-export type EntityType = {
-    readonly type : 'Service' | 'Storage' | 'MessageQueue';
-}
+export type EntityType = 'Service' | 'Storage' | 'MessageQueue';
 
-export type RelationType = {
-    readonly type : 'In' | 'Out';
-}
+export type RelationType = 'Downstream' | 'Upstream';
 
 /**
  * UUID representation
  */
-export type Id = {
-    readonly id: string;
-}
+export type Id = string
 
 /**
  * Definition of entity without id. This type is used to create an entity using API
@@ -21,7 +15,7 @@ export type Id = {
 export type EntityDef = {
     readonly type: EntityType;
     readonly name: string;
-    readonly description: String | null;
+    readonly description: string | null;
 }
 
 /**
@@ -60,26 +54,24 @@ export type RelationProps = {
 
 /**
  * Full information about current entity connections.
+ * relation - relation info
+ * entity - connected entity id
+ */
+export type Leaf = {
+    readonly relation: RelationProps,
+    readonly targetEntity: Id;
+}
+
+/**
+ * Full information about current entity connections.
  * id - source entity
  * relation - relation info
  * entity - connected entity
  */
-export type Leaf = {
+export type LeafFull = {
     readonly id: Id;
     readonly relation: RelationProps,
     readonly entity: EntityProps;
-}
-
-/**
- * Full information about branch.
- * left - entity info
- * relation - relation info
- * right - entity info
- */
-export type Branch = {
-    readonly left: EntityProps;
-    readonly relation: RelationProps;
-    readonly right: EntityProps;
 }
 
 /**

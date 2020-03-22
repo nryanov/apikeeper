@@ -1,4 +1,4 @@
-import {BranchDef, EntityDef, EntityProps, Id, Leaf, RelationProps} from "./types";
+import {BranchDef, EntityDef, EntityProps, Id, Leaf, LeafFull, RelationProps} from "./types";
 import {
     CREATE_ENTITY,
     CREATE_RELATION,
@@ -8,7 +8,8 @@ import {
     REMOVE_ALL_ENTITY_RELATIONS,
     REMOVE_ENTITY,
     REMOVE_RELATION,
-    REMOVE_RELATIONS, UPDATE_ENTITY
+    REMOVE_RELATIONS, UPDATE_ENTITY,
+    SELECT_ENTITY
 } from "./actionType";
 import {Dispatch} from "redux";
 import * as api from './api'
@@ -43,7 +44,7 @@ export namespace actionCalls {
         }
     };
 
-    export const findClosestEntityRelations = (id: Id, leafs: Leaf[]) => {
+    export const findClosestEntityRelations = (id: Id, leafs: LeafFull[]) => {
         return {
             type: FIND_CLOSEST_ENTITY_RELATIONS,
             entityId: id,
@@ -83,6 +84,13 @@ export namespace actionCalls {
     export const removeAllEntityRelations = (id: Id) => {
         return {
             type: REMOVE_ALL_ENTITY_RELATIONS,
+            entityId: id
+        }
+    };
+
+    export const selectEntity = (id: Id) => {
+        return {
+            type: SELECT_ENTITY,
             entityId: id
         }
     };
@@ -137,5 +145,9 @@ export namespace apiCalls {
     export const removeAllEntityRelations = (id: Id) => (dispatch: Dispatch) => {
         return api.removeAllEntityRelations(id)
             .then(() => dispatch(actionCalls.removeAllEntityRelations(id)));
+    };
+
+    export const selectEntity = (id: Id) => {
+        return actionCalls.selectEntity(id);
     };
 }

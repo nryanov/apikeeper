@@ -1,5 +1,5 @@
 import axios, {AxiosRequestConfig} from 'axios'
-import {BranchDef, EntityDef, EntityProps, Id, Leaf, RelationProps} from "./types";
+import {BranchDef, EntityDef, EntityProps, Id, LeafFull, RelationProps} from "./types";
 
 const apiBase = "";
 const apiVersion = "v1";
@@ -31,7 +31,7 @@ export const findEntity = (id: Id) => {
 };
 
 export const findClosestEntityRelations = (id: Id) => {
-    return request<Leaf[]>({
+    return request<LeafFull[]>({
         url: `${apiPath}/entity/${id}/relation`,
         method: "GET",
     });
