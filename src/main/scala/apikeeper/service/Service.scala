@@ -1,6 +1,6 @@
 package apikeeper.service
 
-import apikeeper.model.{Entity, EntityDef, Id, Relation}
+import apikeeper.model.{Entity, EntityDef, EntityType, Id, Relation}
 import apikeeper.model.graph.{Branch, BranchDef, Leaf}
 
 trait Service[F[_]] {
@@ -8,7 +8,11 @@ trait Service[F[_]] {
 
   def findEntities(page: Int, countPerPage: Int): F[Seq[Entity]]
 
+  def findAllEntities(): F[Seq[Entity]]
+
   def findEntitiesByNameLike(pattern: String, limit: Int): F[Seq[Entity]]
+
+  def findEntitiesByType(entityType: EntityType): F[Seq[Entity]]
 
   def findClosestEntityRelations(entityId: Id): F[Seq[Leaf]]
 

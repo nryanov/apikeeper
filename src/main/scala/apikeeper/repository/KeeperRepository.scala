@@ -3,7 +3,7 @@ package apikeeper.repository
 import apikeeper.datasource.QueryRunner
 import apikeeper.datasource.Transactor.Tx
 import apikeeper.model.graph.{Branch, Leaf}
-import apikeeper.model.{Entity, Id, Relation, RelationType}
+import apikeeper.model.{Entity, EntityType, Id, Relation, RelationType}
 import cats.data.Kleisli
 import cats.effect.Sync
 import cats.syntax.option._
@@ -42,6 +42,36 @@ class KeeperRepository[F[_]](
       )
   } yield result
 
+  override def findEntitiesByType(entityType: EntityType): Tx[F, Seq[Entity]] = for {
+    _ <- Kleisli.liftF(Logger[F].info(s"Find entities by type: ${entityType.entryName}"))
+    result <- queryRunner
+      .run(
+        new Query(
+          """
+            |MATCH (self:Entity)
+            |WHERE self.entityType = $entityType
+            |RETURN self.id, self.entityType, self.name, self.description
+            |""".stripMargin,
+          Values.parameters("entityType", entityType.entryName)
+        )
+      )
+      .map(_.list().asScala.map(Entity.fromRecord(_)).toSeq)
+  } yield result
+
+  override def findAllEntities(): Tx[F, Seq[Entity]] = for {
+    _ <- Kleisli.liftF(Logger[F].info("Find all entities"))
+    result <- queryRunner
+      .run(
+        new Query(
+          """
+            |MATCH (self:Entity)
+            |RETURN self.id, self.entityType, self.name, self.description
+            |""".stripMargin
+        )
+      )
+      .map(_.list().asScala.map(Entity.fromRecord(_)).toSeq)
+  } yield result
+
   override def findEntitiesByNameLike(pattern: String, limit: Int = 10): Tx[F, Seq[Entity]] = for {
     _ <- Kleisli.liftF(Logger[F].info(s"Find entities by name: $pattern"))
     result <- queryRunner
@@ -50,7 +80,7 @@ class KeeperRepository[F[_]](
           """
             |MATCH (self:Entity)
             |WHERE self.name =~ $pattern
-            |RETURN DISTINCT self.id, self.entityType, self.name, self.description
+            |RETURN self.id, self.entityType, self.name, self.description
             |LIMIT $limit
             |""".stripMargin,
           Values.parameters("pattern", s".*?$pattern.*?", "limit", Int.box(limit))

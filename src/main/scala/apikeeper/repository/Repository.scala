@@ -1,14 +1,18 @@
 package apikeeper.repository
 
 import apikeeper.model.graph.{Branch, Leaf}
-import apikeeper.model.{Entity, Id, Relation}
+import apikeeper.model.{Entity, EntityType, Id, Relation}
 
 trait Repository[F[_]] {
   def findEntity(entityId: Id): F[Option[Entity]]
 
   def findEntitiesByNameLike(pattern: String, limit: Int): F[Seq[Entity]]
 
+  def findEntitiesByType(entityType: EntityType): F[Seq[Entity]]
+
   def findEntities(page: Int, countPerPage: Int): F[Seq[Entity]]
+
+  def findAllEntities(): F[Seq[Entity]]
 
   def findClosestEntityRelations(entityId: Id): F[Seq[Leaf]]
 

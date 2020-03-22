@@ -1,5 +1,6 @@
 package apikeeper.http
 
+import apikeeper.http.internal.{EntityTypeFilter, Filter, NameFilter}
 import apikeeper.model.{Entity, EntityDef, Id, Relation}
 import apikeeper.model.graph.{BranchDef, Leaf}
 import apikeeper.repository.KeeperRepository.{IncorrectEntitiesPerPage, IncorrectPageNumber}
@@ -27,28 +28,22 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
 
   val findEntityRoute = findEntityEndpoint.toRoutes(id => toRoute(service.findEntity(id)))
 
-  val findEntitiesEndpoint: Endpoint[(Int, Int), (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
-    baseEndpoint.get
-      .in("entity")
-      .in(query[Int]("page").validate(Validator.min(1)))
-      .in(query[Int]("entries").validate(Validator.min(1)))
-      .out(jsonBody[Seq[Entity]])
+  val findEntitiesEndpoint: Endpoint[(Option[Int], Option[Int]), (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
+    baseEndpoint.get.in("entity").in(query[Option[Int]]("page")).in(query[Option[Int]]("entries")).out(jsonBody[Seq[Entity]])
 
   val findEntitiesRoute =
     findEntitiesEndpoint.toRoutes {
-      case (page, count) => toRoute(service.findEntities(page, count))
+      case (Some(page), Some(count)) => toRoute(service.findEntities(page, count))
+      case _                         => toRoute(service.findAllEntities())
     }
 
-  val findEntitiesByNameEndpoint: Endpoint[(String, Int), (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
-    baseEndpoint.get
-      .in("entity" / "filter")
-      .in(query[String]("name"))
-      .in(query[Int]("entries").validate(Validator.min(1)))
-      .out(jsonBody[Seq[Entity]])
+  val findEntitiesByFilterEndpoint: Endpoint[Filter, (StatusCode, ErrorInfo), Seq[Entity], Nothing] =
+    baseEndpoint.get.in("entity" / "filter").in(jsonBody[Filter]).out(jsonBody[Seq[Entity]])
 
-  val findEntitiesByNameRoute =
-    findEntitiesByNameEndpoint.toRoutes {
-      case (pattern, count) => toRoute(service.findEntitiesByNameLike(pattern, count))
+  val findEntitiesByFilterRoute =
+    findEntitiesByFilterEndpoint.toRoutes {
+      case filter: NameFilter       => toRoute(service.findEntitiesByNameLike(filter.pattern, filter.entries))
+      case filter: EntityTypeFilter => toRoute(service.findEntitiesByType(filter.entityType))
     }
 
   val findClosestEntityRelationsEndpoint: Endpoint[Id, (StatusCode, ErrorInfo), Seq[Leaf], Nothing] =
@@ -117,7 +112,7 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
   val route: HttpRoutes[F] = findEntityRoute
     .combineK(findEntitiesRoute)
     .combineK(findClosestEntityRelationsRoute)
-    .combineK(findEntitiesByNameRoute)
+    .combineK(findEntitiesByFilterRoute)
     .combineK(createEntityRoute)
     .combineK(updateEntityRoute)
     .combineK(createRelationRoute)

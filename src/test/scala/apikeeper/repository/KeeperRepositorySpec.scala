@@ -1,7 +1,6 @@
 package apikeeper.repository
 
 import cats.~>
-import cats.syntax.option._
 import org.neo4j.driver.Driver
 import org.scalatest.BeforeAndAfterEach
 import com.dimafeng.testcontainers.Neo4jContainer
@@ -62,6 +61,30 @@ class KeeperRepositorySpec extends IOSpec with TestContainerForAll with BeforeAn
         task = apiRepository.createEntity(entity).flatMap(entity => apiRepository.findEntity(entity.id))
         saved <- transact(task)
       } yield assert(saved.contains(entity))
+    }
+
+    "find all entities" in runF {
+      for {
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
+        entity1 = Entity(id1, EntityType.Service, "service1")
+        entity2 = Entity(id2, EntityType.Service, "service2")
+        task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
+        _ <- transact(task)
+        result <- transact(apiRepository.findAllEntities())
+      } yield assertResult(Seq(entity1, entity2))(result)
+    }
+
+    "find all entities by type" in runF {
+      for {
+        id1 <- fixedUUID.next()
+        id2 <- fixedUUID.next()
+        entity1 = Entity(id1, EntityType.Storage, "storage")
+        entity2 = Entity(id2, EntityType.Service, "service")
+        task = apiRepository.createEntity(entity1).flatMap(_ => apiRepository.createEntity(entity2))
+        _ <- transact(task)
+        result <- transact(apiRepository.findEntitiesByType(EntityType.Storage))
+      } yield assertResult(Seq(entity1))(result)
     }
 
     "find entity definitions from first page" in runF {

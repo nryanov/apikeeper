@@ -9,7 +9,7 @@ import cats.instances.list._
 import apikeeper.datasource.Transactor
 import apikeeper.datasource.Transactor.Tx
 import apikeeper.model
-import apikeeper.model.{Entity, EntityDef, Relation}
+import apikeeper.model.{Entity, EntityDef, EntityType, Relation}
 import apikeeper.model.graph.{Branch, BranchDef, Leaf}
 import apikeeper.repository.KeeperRepository
 import apikeeper.service.internal.IdGenerator
@@ -32,6 +32,12 @@ class KeeperService[F[_]: Sync](
 
   override def findClosestEntityRelations(entityId: model.Id): F[Seq[Leaf]] =
     transact(repository.findClosestEntityRelations(entityId))
+
+  override def findAllEntities(): F[Seq[Entity]] =
+    transact(repository.findAllEntities())
+
+  override def findEntitiesByType(entityType: EntityType): F[Seq[Entity]] =
+    transact(repository.findEntitiesByType(entityType))
 
   override def createEntity(entityDef: EntityDef): F[Entity] = for {
     id <- idGenerator.next()
