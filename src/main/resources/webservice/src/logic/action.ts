@@ -14,140 +14,139 @@ import {
 import {Dispatch} from "redux";
 import * as api from './api'
 
-export namespace actionCalls {
-    export const createEntity = (entityProps: EntityProps) => {
+export const actionCalls = {
+    createEntity: (entityProps: EntityProps) => {
         return {
             type: CREATE_ENTITY,
             entityProps: entityProps
         }
-    };
+    },
 
-    export const updateEntity = (entityProps: EntityProps) => {
+    updateEntity: (entityProps: EntityProps) => {
         return {
             type: UPDATE_ENTITY,
             entityProps: entityProps
         }
-    };
+    },
 
-
-    export const findEntities = (entityProps: EntityProps[]) => {
+    findEntities: (entityProps: EntityProps[]) => {
         return {
             type: FIND_ENTITIES,
             entityProps: entityProps
         }
-    };
+    },
 
-    export const findEntity = (entityProps: EntityProps) => {
+    findEntity: (entityProps: EntityProps) => {
         return {
             type: FIND_ENTITY,
             entityProps: entityProps
         }
-    };
+    },
 
-    export const findClosestEntityRelations = (id: Id, leafs: LeafFull[]) => {
+    findClosestEntityRelations: (id: Id, leafs: LeafFull[]) => {
         return {
             type: FIND_CLOSEST_ENTITY_RELATIONS,
             entityId: id,
             relations: leafs
         }
-    };
+    },
 
-    export const createRelation = (branchDef: BranchDef, relationProps: RelationProps) => {
+    createRelation: (branchDef: BranchDef, relationProps: RelationProps) => {
         return {
             type: CREATE_RELATION,
             branchDef: branchDef,
             relation: relationProps
         }
-    };
+    },
 
-    export const removeEntity = (id: Id) => {
+    removeEntity: (id: Id) => {
         return {
             type: REMOVE_ENTITY,
             entityId: id
         }
-    };
+    },
 
-    export const removeRelation = (id: Id) => {
+    removeRelation: (id: Id) => {
         return {
             type: REMOVE_RELATION,
             relationId: id
         }
-    };
+    },
 
-    export const removeRelations = (ids: Id[]) => {
+    removeRelations: (ids: Id[]) => {
         return {
             type: REMOVE_RELATIONS,
             relationIds: ids
         }
-    };
+    },
 
-    export const removeAllEntityRelations = (id: Id) => {
+    removeAllEntityRelations: (id: Id) => {
         return {
             type: REMOVE_ALL_ENTITY_RELATIONS,
             entityId: id
         }
-    };
+    },
 
-    export const selectEntity = (id: Id) => {
+    selectEntity: (id: Id) => {
         return {
             type: SELECT_ENTITY,
             entityId: id
         }
-    };
-}
+    },
+};
 
-export namespace apiCalls {
-    export const createEntity = (entityDef: EntityDef) => (dispatch: Dispatch<any>) => {
+export const apiCalls = {
+    createEntity: (entityDef: EntityDef) => (dispatch: Dispatch<any>) => {
         return api.createEntity(entityDef)
             .then(data => dispatch(actionCalls.createEntity(data)));
-    };
+    },
 
-    export const updateEntity = (entity: EntityProps) => (dispatch: Dispatch<any>) => {
+    updateEntity: (entity: EntityProps) => (dispatch: Dispatch<any>) => {
         return api.updateEntity(entity)
             .then(data => dispatch(actionCalls.updateEntity(data)));
-    };
+    },
 
-    export const findEntities = (page: number, entries: number) => (dispatch: Dispatch) => {
+    findEntities: (page: number, entries: number) => (dispatch: Dispatch) => {
         return api.findEntities(page, entries)
             .then(data => dispatch(actionCalls.findEntities(data)));
-    };
+    },
 
-    export const findEntity = (id: Id) => (dispatch: Dispatch) => {
+    findEntity: (id: Id) => (dispatch: Dispatch) => {
         return api.findEntity(id)
             .then(data => dispatch(actionCalls.findEntity(data)));
-    };
+    },
 
-    export const findClosestEntityRelations = (id: Id) => (dispatch: Dispatch) => {
+    findClosestEntityRelations: (id: Id) => (dispatch: Dispatch) => {
         return api.findClosestEntityRelations(id)
             .then(data => dispatch(actionCalls.findClosestEntityRelations(id, data)));
-    };
+    },
 
-    export const createRelation = (branchDef: BranchDef) => (dispatch: Dispatch) => {
+    createRelation: (branchDef: BranchDef) => (dispatch: Dispatch) => {
         return api.createRelation(branchDef)
             .then(data => dispatch(actionCalls.createRelation(branchDef, data)));
-    };
+    },
 
-    export const removeEntity = (id: Id) => (dispatch: Dispatch) => {
+    removeEntity: (id: Id) => (dispatch: Dispatch) => {
         return api.removeEntity(id)
             .then(() => dispatch(actionCalls.removeEntity(id)));
-    };
+    },
 
-    export const removeRelation = (id: Id) => (dispatch: Dispatch) => {
+    removeRelation: (id: Id) => (dispatch: Dispatch) => {
         return api.removeRelation(id)
             .then(() => dispatch(actionCalls.removeRelation(id)));
-    };
+    },
 
-    export const removeRelations = (ids: Id[]) => (dispatch: Dispatch) => {
+    removeRelations: (ids: Id[]) => (dispatch: Dispatch) => {
         return api.removeRelations(ids)
             .then(() => dispatch(actionCalls.removeRelations(ids)));
-    };
+    },
 
-    export const removeAllEntityRelations = (id: Id) => (dispatch: Dispatch) => {
+    removeAllEntityRelations: (id: Id) => (dispatch: Dispatch) => {
         return api.removeAllEntityRelations(id)
             .then(() => dispatch(actionCalls.removeAllEntityRelations(id)));
-    };
+    },
 
-    export const selectEntity = (id: Id) => {
+    selectEntity: (id: Id) => {
         return actionCalls.selectEntity(id);
-    };
-}
+    },
+};

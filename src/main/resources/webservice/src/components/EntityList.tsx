@@ -1,6 +1,13 @@
-import React, {FunctionComponent} from 'react'
+import React from 'react'
+import { useSelector } from 'react-redux'
+import {State} from "../logic/types";
+import _ from 'lodash'
+import EntityListItem from "./EntityListItem";
 
-const EntityList: FunctionComponent = () => {
+
+const EntityList: React.FunctionComponent = () => {
+    const entityProps = useSelector<State, any>(state => state.entityProps);
+
     return (
         <table className="table table-hover">
             <thead>
@@ -9,6 +16,7 @@ const EntityList: FunctionComponent = () => {
             </tr>
             </thead>
             <tbody>
+                {_.map(entityProps, prop => <EntityListItem key={prop.id} {...prop}/>)}
             </tbody>
         </table>
     )
