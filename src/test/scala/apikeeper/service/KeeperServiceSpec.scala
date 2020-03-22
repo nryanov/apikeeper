@@ -12,8 +12,9 @@ import izumi.distage.model.Locator
 import izumi.distage.model.definition.DIResource
 import org.scalatest.{BeforeAndAfterEach, EitherValues}
 import apikeeper.datasource.{DataStorage, Migration, QueryRunner, Transactor}
+import apikeeper.model.graph.BranchDef
 import apikeeper.{DISpec, FixedUUID, Neo4jSettings}
-import apikeeper.model.{EntityDef, EntityType}
+import apikeeper.model.{EntityDef, EntityType, RelationDef, RelationType}
 import apikeeper.repository.KeeperRepository
 import apikeeper.service.internal.IdGenerator
 
@@ -66,6 +67,121 @@ class KeeperServiceSpec extends DISpec with TestContainerForAll with BeforeAndAf
         result <- service.findEntities(1, 5)
       } yield {
         result mustBe entities
+      }
+    }
+
+    "update entity" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef <- EntityDef(EntityType.Service, "service").pure
+        createdEntity <- service.createEntity(entityDef)
+        updatedEntity = createdEntity.copy(name = "updatedService")
+        _ <- service.updateEntity(updatedEntity)
+        result <- service.findEntity(createdEntity.id)
+      } yield assert(result.contains(updatedEntity))
+    }
+
+    "find all entities" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef1 <- EntityDef(EntityType.Service, "service1").pure
+        entityDef2 <- EntityDef(EntityType.Service, "service2").pure
+        response <- service.createEntities(Seq(entityDef1, entityDef2))
+        result <- service.findAllEntities()
+      } yield assertResult(response)(result)
+    }
+
+    "find all entities by type" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef1 <- EntityDef(EntityType.Storage, "storage").pure
+        entity <- service.createEntity(entityDef1)
+        result <- service.findEntitiesByType(EntityType.Storage)
+      } yield assertResult(Seq(entity))(result)
+    }
+
+    "find entity definitions by name pattern (1)" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef1 <- EntityDef(EntityType.Storage, "storage").pure
+        entityDef2 <- EntityDef(EntityType.Service, "service").pure
+        entity1 <- service.createEntity(entityDef1)
+        _ <- service.createEntity(entityDef2)
+        result <- service.findEntitiesByNameLike("tor", 1)
+      } yield assertResult(Seq(entity1))(result)
+    }
+
+    "find entity definitions by name pattern (2)" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef1 <- EntityDef(EntityType.Storage, "storage").pure
+        entityDef2 <- EntityDef(EntityType.Service, "service").pure
+        _ <- service.createEntity(entityDef1)
+        entity2 <- service.createEntity(entityDef2)
+        result <- service.findEntitiesByNameLike("ervic", 1)
+      } yield assertResult(Seq(entity2))(result)
+    }
+
+    "remove entity definition" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef1 <- EntityDef(EntityType.Storage, "storage").pure
+        entity <- service.createEntity(entityDef1)
+        result <- service.findAllEntities()
+        _ <- service.removeEntity(entity.id)
+        resultAfterDeletion <- service.findAllEntities()
+      } yield {
+        assertResult(Seq(entity))(result)
+        assert(resultAfterDeletion.isEmpty)
+      }
+    }
+
+    "create relation" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef1 <- EntityDef(EntityType.Storage, "storage").pure
+        entityDef2 <- EntityDef(EntityType.Service, "service").pure
+        entity1 <- service.createEntity(entityDef1)
+        entity2 <- service.createEntity(entityDef2)
+        relationDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
+        _ <- service.createRelation(relationDef)
+        result <- service.findClosestEntityRelations(entity1.id)
+      } yield assert(result.size == 1)
+    }
+
+    "remove all entity relations" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef1 <- EntityDef(EntityType.Storage, "storage").pure
+        entityDef2 <- EntityDef(EntityType.Service, "service").pure
+        entity1 <- service.createEntity(entityDef1)
+        entity2 <- service.createEntity(entityDef2)
+        relationDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
+        _ <- service.createRelation(relationDef)
+        relations <- service.findClosestEntityRelations(entity1.id)
+        _ <- service.removeAllEntityRelations(entity1.id)
+        relationsAfterDeletion <- service.findClosestEntityRelations(entity1.id)
+      } yield {
+        assert(relations.size == 1)
+        assert(relationsAfterDeletion.isEmpty)
+      }
+    }
+
+    "remove relation by id" in runDI { locator =>
+      val service = locator.get[KeeperService[F]]
+      for {
+        entityDef1 <- EntityDef(EntityType.Storage, "storage").pure
+        entityDef2 <- EntityDef(EntityType.Service, "service").pure
+        entity1 <- service.createEntity(entityDef1)
+        entity2 <- service.createEntity(entityDef2)
+        relationDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
+        relation <- service.createRelation(relationDef)
+        relations <- service.findClosestEntityRelations(entity1.id)
+        _ <- service.removeRelation(relation.id)
+        relationsAfterDeletion <- service.findClosestEntityRelations(entity1.id)
+      } yield {
+        assert(relations.size == 1)
+        assert(relationsAfterDeletion.isEmpty)
       }
     }
   }

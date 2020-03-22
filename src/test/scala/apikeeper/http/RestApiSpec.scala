@@ -6,6 +6,8 @@ import cats.syntax.option._
 import cats.data.OptionT
 import cats.effect.{Bracket, ConcurrentEffect, ContextShift, IO, Resource, Sync, Timer}
 import apikeeper.datasource.{DataStorage, Migration, QueryRunner, Transactor}
+import apikeeper.http._
+import apikeeper.http.internal.{EntityTypeFilter, Filter, NameFilter}
 import apikeeper.model._
 import apikeeper.model.graph.{BranchDef, Leaf}
 import apikeeper.repository.KeeperRepository
@@ -186,6 +188,20 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       }
     }
 
+    "findAllEntities" in runDI { locator =>
+      val service = locator.get[Service[IO]]
+      val rest = locator.get[RestApi[IO]].route
+
+      val entityDef = EntityDef(EntityType.Service, "service")
+
+      for {
+        entity <- service.createEntity(entityDef)
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/")))
+      } yield {
+        check[Seq[Entity]](response, Status.Ok, Seq(entity))
+      }
+    }
+
     "findEntitiesByName" in runDI { locator =>
       val service = locator.get[Service[IO]]
       val rest = locator.get[RestApi[IO]].route
@@ -193,14 +209,30 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       val entityDef = EntityDef(EntityType.Service, "service")
       val anotherDef = EntityDef(EntityType.Storage, "storage")
 
+      val filter: Filter = NameFilter("tor", 1)
+
       for {
         _ <- service.createEntity(entityDef)
         entity <- service.createEntity(anotherDef)
-        response <- run(
-          rest.run(
-            Request[IO](method = Method.GET, uri = uri"/v1/entity/filter".withQueryParam("name", "tor").withQueryParam("entries", 1))
-          )
-        )
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/filter").withEntity(filter)))
+      } yield {
+        check[Seq[Entity]](response, Status.Ok, Seq(entity))
+      }
+    }
+
+    "findEntitiesByType" in runDI { locator =>
+      val service = locator.get[Service[IO]]
+      val rest = locator.get[RestApi[IO]].route
+
+      val entityDef = EntityDef(EntityType.Service, "service")
+      val anotherDef = EntityDef(EntityType.Storage, "storage")
+
+      val filter: Filter = EntityTypeFilter(EntityType.Service)
+
+      for {
+        entity <- service.createEntity(entityDef)
+        _ <- service.createEntity(anotherDef)
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/filter").withEntity(filter)))
       } yield {
         check[Seq[Entity]](response, Status.Ok, Seq(entity))
       }
