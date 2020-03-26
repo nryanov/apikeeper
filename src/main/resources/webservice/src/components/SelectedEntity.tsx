@@ -36,7 +36,7 @@ const SelectedEntity: React.FunctionComponent = () => {
                             <EntityInfo {...selected}/>
                         </div>
                         <div className="tab-pane fade" id="visualization" role="tabpanel" aria-labelledby="profile-tab">
-                            <EntityVisualization {...selected}/>
+                            <EntityVisualization/>
                         </div>
                     </div>
                 </div>

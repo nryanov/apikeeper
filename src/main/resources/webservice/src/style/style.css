@@ -1,0 +1,21 @@
+svg {
+    display: block;
+    border: 3px solid aliceblue;
+}
+
+/* sorry for this ^_^ */
+.badge-primary {
+    background-color: #b3e2cd;
+}
+.badge-secondary {
+    background-color: #fdcdac;
+}
+.badge-success {
+    background-color: #cbd5e8;
+}
+.badge-danger {
+    background-color: #e6f5c9;
+}
+.badge-warning {
+    background-color: #f4cae4;
+}

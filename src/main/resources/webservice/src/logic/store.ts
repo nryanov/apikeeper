@@ -19,37 +19,44 @@ let initialState: State = {
         },
         "2": {
             id: "2",
-            type: "Service",
+            type: "Storage",
             name: "entity2",
+            description: null
+        },
+        "3": {
+            id: "3",
+            type: "MessageQueue",
+            name: "entity3",
             description: null
         }
     },
     entityStates: {
         "1": [{
             relation: {
-                id: "3",
-                relationType: "Downstream"
-            },
-            targetEntity: "2"
-        }, {
-            relation: {
-                id: "4",
+                id: "1",
                 relationType: "Downstream"
             },
             targetEntity: "2"
         }],
         "2": [{
             relation: {
-                id: "3",
+                id: "1",
                 relationType: "Upstream"
             },
             targetEntity: "1"
         }, {
             relation: {
-                id: "4",
+                id: "2",
+                relationType: "Downstream"
+            },
+            targetEntity: "3"
+        }],
+        "3": [{
+            relation: {
+                id: "2",
                 relationType: "Upstream"
             },
-            targetEntity: "1"
+            targetEntity: "2"
         }]
     },
     selectedEntity: null
