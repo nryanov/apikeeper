@@ -1,4 +1,4 @@
-import {BranchDef, EntityDef, EntityProps, Id, LeafFull, RelationProps} from "./types";
+import {BranchDef, EntityDef, EntityProps, EntityType, Id, LeafFull, RelationProps} from "./types";
 import {
     CREATE_ENTITY,
     CREATE_RELATION,
@@ -9,7 +9,9 @@ import {
     REMOVE_ENTITY,
     REMOVE_RELATION,
     REMOVE_RELATIONS, UPDATE_ENTITY,
-    SELECT_ENTITY
+    SELECT_ENTITY,
+    CHANGE_PAGE,
+    FILTER_ENTITIES
 } from "./actionType";
 import {Dispatch} from "redux";
 import * as api from "./api"
@@ -91,6 +93,21 @@ export const actionCalls = {
         return {
             type: SELECT_ENTITY,
             entityId: id
+        }
+    },
+
+    changePage: (page: number) => {
+        return {
+            type: CHANGE_PAGE,
+            page: page
+        }
+    },
+
+    filterEntities: (namePattern: string, entityType: EntityType) => {
+        return {
+            type: FILTER_ENTITIES,
+            namePattern: namePattern,
+            entityType: entityType
         }
     },
 };

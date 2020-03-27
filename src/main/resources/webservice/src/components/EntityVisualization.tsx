@@ -1,13 +1,32 @@
 import React from "react"
 import {connect} from "react-redux";
-import {EntityProps, EntityType, Id, RelationType, State} from "../logic/types";
+import {EntityType, Id, RelationType, State} from "../logic/types";
 import * as d3 from "d3"
 import { SimulationNodeDatum } from "d3";
 import _ from "lodash"
+import {Simulation} from "d3";
+
+const height = 400;
+const width = 800;
 
 function linkArc(d: any) {
     const r = Math.hypot(d.target.x - d.source.x, d.target.y - d.source.y);
     return `M${d.source.x},${d.source.y} A${r},${r} 0 0,1 ${d.target.x},${d.target.y}`;
+}
+
+function dragStart(d: any, simulation: Simulation<SimulationNodeDatum, any>) {
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+}
+
+function dragDrag(d: any, simulation: Simulation<SimulationNodeDatum, any>) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+}
+
+function dragEnd(d: any, simulation: Simulation<SimulationNodeDatum, any>) {
+    if (!d3.event.active) simulation.alphaTarget(0);
 }
 
 interface Node extends SimulationNodeDatum {
@@ -45,13 +64,13 @@ class EntityVisualizationComponent extends React.Component<LocalProps> {
 
     updateGraph() {
         if (this.simulation !== null) {
-            this.simulation.stop()
+            this.simulation.restart()
         }
 
         this.simulation = d3.forceSimulation(this.props.nodes)
             .force("link", d3.forceLink(this.props.links).id(node => (node as Node).id))
             .force("charge", d3.forceManyBody().strength(-400))
-            .force("center_force", d3.forceCenter(800 / 2, 150 / 2)); // constants >_<
+            .force("center_force", d3.forceCenter(width / 2, height / 2));
 
         const svg = d3.select(this.svgRef.current);
         svg.selectAll("*").remove();
@@ -91,7 +110,7 @@ class EntityVisualizationComponent extends React.Component<LocalProps> {
             .attr("stroke", "white")
             .attr("fill", d => this.color(d.type))
             .attr("stroke-width", 1.5)
-            .attr("r", 5);
+            .attr("r", 7);
 
         node.append("text")
             .attr("x", 12)
@@ -100,6 +119,13 @@ class EntityVisualizationComponent extends React.Component<LocalProps> {
             .clone(true).lower()
             .attr("stroke", "white")
             .attr("stroke-width", 3);
+
+        const dragHandler: any = d3.drag()
+            .on("start", d => dragStart(d, this.simulation))
+            .on("drag", d => dragDrag(d, this.simulation))
+            .on("end", d => dragEnd(d, this.simulation));
+
+        dragHandler(node);
 
         this.simulation.on("tick", () => {
             link.attr("d", linkArc);
@@ -119,7 +145,7 @@ class EntityVisualizationComponent extends React.Component<LocalProps> {
                     <span className="badge badge-pill badge-danger">Downstream</span>
                     <span className="badge badge-pill badge-warning">Upstream</span>
                 </div>
-                <svg width="90%" height="90%" ref={this.svgRef}>
+                <svg width={width} height={height} ref={this.svgRef}>
 
                 </svg>
             </div>
@@ -131,28 +157,39 @@ const mapStateToProps = (state: State): LocalProps => {
     const selectedEntity = state.selectedEntity;
 
     if (selectedEntity !== null) {
-        const nodesWithLink: [Node, Link][] = _.map(state.entityStates[selectedEntity], leaf => {
-            const node: Node = state.entityProps[leaf.targetEntity];
-            const link: Link = leaf.relation.relationType === "Downstream" ? {
-                ...leaf.relation,
-                source: selectedEntity,
-                target: leaf.targetEntity
-            } : {
-                ...leaf.relation,
-                source: leaf.targetEntity,
-                target: selectedEntity
+        const leafs = state.entityStates[selectedEntity] || [];
+
+        if (leafs.length !== 0) {
+            const nodesWithLink: [Node, Link][] = _.map(leafs, leaf => {
+                const node: Node = state.entityProps[leaf.targetEntity];
+                const link: Link = leaf.relation.relationType === "Downstream" ? {
+                    ...leaf.relation,
+                    source: selectedEntity,
+                    target: leaf.targetEntity
+                } : {
+                    ...leaf.relation,
+                    source: leaf.targetEntity,
+                    target: selectedEntity
+                };
+
+                return [node, link];
+            });
+
+            const [nodes, links] = _.unzip(nodesWithLink);
+            nodes.push(state.entityProps[selectedEntity]);
+
+            return {
+                nodes: nodes as Node[],
+                links: links as Link[]
             };
+        } else {
+            return {
+                nodes: [state.entityProps[selectedEntity]],
+                links: []
+            };
+        }
 
-            return [node, link];
-        });
 
-        const [nodes, links] = _.unzip(nodesWithLink);
-        nodes.push(state.entityProps[selectedEntity]);
-
-        return {
-            nodes: nodes as Node[],
-            links: links as Link[]
-        };
     } else {
         return {
             nodes: [],
