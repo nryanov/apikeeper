@@ -1,4 +1,4 @@
-import {BranchDef, EntityProps, KeeperActions, Leaf, RelationProps, State} from "./types";
+import {BranchDef, EntityProps, KeeperActions, Leaf, MAX_PAGE_SIZE, RelationProps, State} from "./types";
 import * as Type from "./actionType";
 import _ from "lodash"
 import {Reducer} from "redux";
@@ -8,7 +8,9 @@ export const reducer: Reducer<State, KeeperActions> = (state: State, action: Kee
         case Type.FIND_ENTITIES:
             return {
                 ...state,
-                entityProps: {...state.entityProps, ..._.keyBy(action.entityProps, props => props.id)}
+                entityProps: {...state.entityProps, ..._.keyBy(action.entityProps, props => props.id)},
+                page: 1,
+                maxPage: Math.ceil(Object.keys(action.entityProps).length / MAX_PAGE_SIZE)
             };
         case Type.FIND_ENTITY:
             return {
@@ -120,6 +122,38 @@ export const reducer: Reducer<State, KeeperActions> = (state: State, action: Kee
                 ...state,
                 selectedEntity: action.entityId
             };
+        case Type.CHANGE_PAGE:
+            return {
+                ...state,
+                page: action.page
+            };
+        case Type.FILTER_ENTITIES:
+            // if at least one filter is applied
+            if (action.namePattern || action.entityType) {
+                const nameFilter = (entityProp: EntityProps) => action.namePattern !== null ? entityProp.name.toLowerCase().includes(action.namePattern.toLowerCase()) : true;
+                const typeFilter = (entityProp: EntityProps) => action.entityType !== null ? entityProp.entityType === action.entityType : true;
+
+                const filteredEntityProps = _.pickBy(state.entityProps, (value, key) => nameFilter(value) && typeFilter(value));
+                const maxPage = Object.keys(filteredEntityProps).length !== 0 ? Math.ceil(Object.keys(filteredEntityProps).length / MAX_PAGE_SIZE) : 1;
+
+                return {
+                    ...state,
+                    page: 1,
+                    maxPage: maxPage,
+                    filterByName: action.namePattern,
+                    filterByType: action.entityType,
+                    filteredEntityProps: filteredEntityProps
+                };
+            } else { // otherwise select all entities
+                return {
+                    ...state,
+                    page: 1,
+                    maxPage: Math.ceil(Object.keys(state.entityProps).length / MAX_PAGE_SIZE),
+                    filterByName: null,
+                    filterByType: null,
+                    filteredEntityProps: {}
+                }
+            }
         default: return state;
     }
 };

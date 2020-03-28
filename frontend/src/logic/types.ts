@@ -1,4 +1,6 @@
 import * as actions from "./action";
+import {ThunkAction, ThunkDispatch} from "redux-thunk";
+import {Action} from "redux";
 
 export type EntityType = "Service" | "Storage" | "MessageQueue";
 
@@ -13,7 +15,7 @@ export type Id = string
  * Definition of entity without id. This type is used to create an entity using API
  */
 export type EntityDef = {
-    readonly type: EntityType;
+    readonly entityType: EntityType;
     readonly name: string;
     readonly description: string | null;
 }
@@ -39,7 +41,7 @@ export type BranchDef = {
  */
 export type EntityProps = {
     readonly id: Id;
-    readonly type: EntityType;
+    readonly entityType: EntityType;
     readonly name: string;
     readonly description: string | null;
 }
@@ -81,8 +83,19 @@ export type State = {
     readonly entityProps: {[key: string]: EntityProps};
     readonly entityStates: {[key: string]: Leaf[]};
     readonly selectedEntity: Id | null;
+    readonly page: number;
+    readonly maxPage: number;
+    readonly filterByName: string | null;
+    readonly filterByType: EntityType | null;
+    readonly filteredEntityProps: {[key: string]: EntityProps};
 }
+
+export const MAX_PAGE_SIZE = 5;
 
 type InferType<T> = T extends { [key: string]: infer U} ? U : never;
 
 export type KeeperActions = ReturnType<InferType<typeof actions.actionCalls>>
+
+export type Result<R, A> = ThunkAction<R, State, A, Action>;
+
+export type Dispatcher<A> = ThunkDispatch<State, A, Action>;

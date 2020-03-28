@@ -14,7 +14,7 @@ const EntityListItem: React.FunctionComponent<EntityProps> = (props) => {
     return (
         <tr>
             <td onClick={selectEntity}>
-                <p><b>[{props.type}]</b> {props.name}</p>
+                <p><b>[{props.entityType}]</b> {props.name}</p>
             </td>
         </tr>
     )
