@@ -32,7 +32,7 @@ function dragEnd(d: any, simulation: Simulation<SimulationNodeDatum, any>) {
 interface Node extends SimulationNodeDatum {
     readonly id: Id;
     readonly name: string;
-    readonly type: EntityType;
+    readonly entityType: EntityType;
 }
 
 interface Link {
@@ -108,7 +108,7 @@ class EntityVisualizationComponent extends React.Component<LocalProps> {
 
         node.append("circle")
             .attr("stroke", "white")
-            .attr("fill", d => this.color(d.type))
+            .attr("fill", d => this.color(d.entityType))
             .attr("stroke-width", 1.5)
             .attr("r", 7);
 

@@ -2,6 +2,7 @@ import {createStore, applyMiddleware, Store} from "redux";
 import thunk from "redux-thunk";
 import { reducer } from "./reducer"
 import {KeeperActions, State} from "./types";
+import {apiCalls} from "./action";
 
 let initialState: State = {
     entityProps: {},
@@ -21,5 +22,7 @@ const storeFactory = (state: State): Store<State, KeeperActions> => applyMiddlew
 );
 
 const store = storeFactory(initialState);
+// @ts-ignore
+store.dispatch(apiCalls.findAllEntities());
 
 export default store;

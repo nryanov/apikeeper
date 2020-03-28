@@ -7,7 +7,7 @@ import * as Rx from 'rxjs';
 import * as operators from 'rxjs/operators';
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-    filterEntity(namePattern: string, entityType: EntityType) {
+    filterEntity(namePattern: string | null, entityType: EntityType | null) {
         dispatch(action.actionCalls.filterEntities(namePattern, entityType))
     }
 });
@@ -23,11 +23,25 @@ class SearchComponent extends React.Component<LocalProps> {
         const patternObservable = Rx.fromEvent(this.inputRef.current, "input");
         // @ts-ignore
         const typeObservable = Rx.fromEvent(this.selectRef.current, "input");
-        const mergedObservable = Rx.merge(patternObservable, typeObservable).pipe(
+        Rx.merge(patternObservable, typeObservable).pipe(
             operators.debounce(event => Rx.interval(1000))
-        );
-        // @ts-ignore
-        mergedObservable.subscribe(event => this.props.filterEntity(this.inputRef.current.value, this.selectRef.current.value));
+        ).subscribe(event => {
+            // @ts-ignore
+            const namePattern = this.inputRef.current.value;
+            // @ts-ignore
+            const entityType = this.selectedValueToEntityType(this.selectRef.current.value);
+
+            this.props.filterEntity(namePattern, entityType)
+        });
+    }
+
+    selectedValueToEntityType(value: string): EntityType | null {
+        switch (value) {
+            case "2": return "Service";
+            case "3": return "Storage";
+            case "4": return "MessageQueue";
+            default: return null;
+        }
     }
 
     render() {

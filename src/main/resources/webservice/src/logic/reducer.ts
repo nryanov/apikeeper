@@ -130,15 +130,16 @@ export const reducer: Reducer<State, KeeperActions> = (state: State, action: Kee
         case Type.FILTER_ENTITIES:
             // if at least one filter is applied
             if (action.namePattern || action.entityType) {
-                const nameFilter = (entityProp: EntityProps) => action.namePattern !== null ? entityProp.name.includes(action.namePattern) : true;
-                const typeFilter = (entityProp: EntityProps) => action.entityType !== null ? entityProp.type === action.entityType : true;
+                const nameFilter = (entityProp: EntityProps) => action.namePattern !== null ? entityProp.name.toLowerCase().includes(action.namePattern.toLowerCase()) : true;
+                const typeFilter = (entityProp: EntityProps) => action.entityType !== null ? entityProp.entityType === action.entityType : true;
 
                 const filteredEntityProps = _.pickBy(state.entityProps, (value, key) => nameFilter(value) && typeFilter(value));
+                const maxPage = Object.keys(filteredEntityProps).length !== 0 ? Math.ceil(Object.keys(filteredEntityProps).length / MAX_PAGE_SIZE) : 1;
 
                 return {
                     ...state,
                     page: 1,
-                    maxPage: Math.ceil(Object.keys(filteredEntityProps).length / MAX_PAGE_SIZE),
+                    maxPage: maxPage,
                     filterByName: action.namePattern,
                     filterByType: action.entityType,
                     filteredEntityProps: filteredEntityProps

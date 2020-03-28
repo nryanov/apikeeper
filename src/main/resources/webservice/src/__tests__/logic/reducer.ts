@@ -18,7 +18,7 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity",
                     description: null
                 }
@@ -37,7 +37,7 @@ describe("reducer specs", () => {
             entityProps: [
                 {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity",
                     description: null
                 }
@@ -64,7 +64,7 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity",
                     description: null
                 }
@@ -82,7 +82,7 @@ describe("reducer specs", () => {
             type: "FIND_ENTITY",
             entityProps: {
                 id: "1",
-                type: "Service",
+                entityType: "Service",
                 name: "entity",
                 description: null
             }
@@ -108,7 +108,7 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity",
                     description: null
                 }
@@ -126,7 +126,7 @@ describe("reducer specs", () => {
             type: "CREATE_ENTITY",
             entityProps: {
                 id: "1",
-                type: "Service",
+                entityType: "Service",
                 name: "entity",
                 description: null
             }
@@ -141,7 +141,7 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity",
                     description: null
                 }
@@ -159,7 +159,7 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "updatedName",
                     description: null
                 }
@@ -177,7 +177,7 @@ describe("reducer specs", () => {
             type: "UPDATE_ENTITY",
             entityProps: {
                 id: "1",
-                type: "Service",
+                entityType: "Service",
                 name: "updatedName",
                 description: null
             }
@@ -192,13 +192,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -216,13 +216,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -275,13 +275,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -299,13 +299,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -358,13 +358,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -382,13 +382,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -421,7 +421,7 @@ describe("reducer specs", () => {
                 },
                 entity: {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -437,7 +437,7 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 }
@@ -455,13 +455,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -494,7 +494,7 @@ describe("reducer specs", () => {
                 },
                 entity: {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -510,13 +510,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -549,7 +549,7 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 }
@@ -579,13 +579,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -618,13 +618,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -655,13 +655,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -706,13 +706,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -743,13 +743,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -794,13 +794,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -860,13 +860,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -884,13 +884,13 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity2",
                     description: null
                 }
@@ -918,19 +918,19 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }
@@ -948,19 +948,19 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }
@@ -974,7 +974,7 @@ describe("reducer specs", () => {
             filteredEntityProps: {
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 }
@@ -996,19 +996,19 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }
@@ -1026,19 +1026,19 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }
@@ -1052,19 +1052,19 @@ describe("reducer specs", () => {
             filteredEntityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }
@@ -1086,19 +1086,19 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }
@@ -1116,19 +1116,19 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }
@@ -1142,7 +1142,7 @@ describe("reducer specs", () => {
             filteredEntityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 }
@@ -1164,19 +1164,19 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }
@@ -1190,7 +1190,7 @@ describe("reducer specs", () => {
             filteredEntityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 }
@@ -1201,19 +1201,19 @@ describe("reducer specs", () => {
             entityProps: {
                 "1": {
                     id: "1",
-                    type: "Service",
+                    entityType: "Service",
                     name: "entity1",
                     description: null
                 },
                 "2": {
                     id: "2",
-                    type: "Storage",
+                    entityType: "Storage",
                     name: "entity2",
                     description: null
                 },
                 "3": {
                     id: "3",
-                    type: "MessageQueue",
+                    entityType: "MessageQueue",
                     name: "entity3",
                     description: null
                 }

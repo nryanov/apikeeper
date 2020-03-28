@@ -20,10 +20,10 @@ const Pagination: React.FunctionComponent = () => {
         <nav aria-label="Page navigation example">
             <ul className="pagination">
                 <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                    <button type="button" className="page-link" onClick={() => changePage(currentPage + 1)}>Previous</button>
+                    <button type="button" className="page-link" onClick={() => changePage(currentPage - 1)}>Previous</button>
                 </li>
                 <li className={`page-item ${currentPage === maxPage ? 'disabled' : ''}`}>
-                    <button type="button" className="page-link" onClick={() => changePage(currentPage - 1)}>Next</button>
+                    <button type="button" className="page-link" onClick={() => changePage(currentPage + 1)}>Next</button>
                 </li>
             </ul>
         </nav>

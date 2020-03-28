@@ -1,4 +1,14 @@
-import {BranchDef, EntityDef, EntityProps, EntityType, Id, LeafFull, RelationProps} from "./types";
+import {
+    BranchDef, Dispatcher,
+    EntityDef,
+    EntityProps,
+    EntityType,
+    Id,
+    KeeperActions,
+    LeafFull,
+    RelationProps, Result,
+    State
+} from "./types";
 import {
     CREATE_ENTITY,
     CREATE_RELATION,
@@ -13,8 +23,8 @@ import {
     CHANGE_PAGE,
     FILTER_ENTITIES
 } from "./actionType";
-import {Dispatch} from "redux";
 import * as api from "./api"
+
 
 export const actionCalls = {
     createEntity: (entityProps: EntityProps) => {
@@ -113,62 +123,67 @@ export const actionCalls = {
 };
 
 export const apiCalls = {
-    createEntity: (entityDef: EntityDef) => (dispatch: Dispatch<any>) => {
+    createEntity: (entityDef: EntityDef): Result<Promise<KeeperActions>, EntityDef> => (dispatch: Dispatcher<EntityDef>) => {
         return api.createEntity(entityDef)
             .then(data => dispatch(actionCalls.createEntity(data)));
     },
 
-    updateEntity: (entity: EntityProps) => (dispatch: Dispatch<any>) => {
+    updateEntity: (entity: EntityProps): Result<Promise<KeeperActions>, EntityProps> => (dispatch: Dispatcher<EntityProps>) => {
         return api.updateEntity(entity)
             .then(data => dispatch(actionCalls.updateEntity(data)));
     },
 
-    findAllEntities: () => (dispatch: Dispatch) => {
+    findAllEntities: (): Result<Promise<KeeperActions>, undefined> => (dispatch: Dispatcher<undefined>) => {
         return api.findAllEntities()
             .then(data => dispatch(actionCalls.findEntities(data)));
     },
 
-    findEntities: (page: number, entries: number) => (dispatch: Dispatch) => {
+    findEntities: (page: number, entries: number): Result<Promise<KeeperActions>, [number, number]> => (dispatch: Dispatcher<[number, number]>) => {
         return api.findEntities(page, entries)
             .then(data => dispatch(actionCalls.findEntities(data)));
     },
 
-    findEntity: (id: Id) => (dispatch: Dispatch) => {
+    findEntity: (id: Id): Result<Promise<KeeperActions>, Id> => (dispatch: Dispatcher<Id>) => {
         return api.findEntity(id)
             .then(data => dispatch(actionCalls.findEntity(data)));
     },
 
-    findClosestEntityRelations: (id: Id) => (dispatch: Dispatch) => {
+    findClosestEntityRelations: (id: Id): Result<Promise<KeeperActions>, Id> => (dispatch: Dispatcher<Id>) => {
         return api.findClosestEntityRelations(id)
             .then(data => dispatch(actionCalls.findClosestEntityRelations(id, data)));
     },
 
-    createRelation: (branchDef: BranchDef) => (dispatch: Dispatch) => {
+    createRelation: (branchDef: BranchDef): Result<Promise<KeeperActions>, BranchDef> => (dispatch: Dispatcher<BranchDef>) => {
         return api.createRelation(branchDef)
             .then(data => dispatch(actionCalls.createRelation(branchDef, data)));
     },
 
-    removeEntity: (id: Id) => (dispatch: Dispatch) => {
+    removeEntity: (id: Id): Result<Promise<KeeperActions>, Id> => (dispatch: Dispatcher<Id>) => {
         return api.removeEntity(id)
             .then(() => dispatch(actionCalls.removeEntity(id)));
     },
 
-    removeRelation: (id: Id) => (dispatch: Dispatch) => {
+    removeRelation: (id: Id): Result<Promise<KeeperActions>, Id> => (dispatch: Dispatcher<Id>) => {
         return api.removeRelation(id)
             .then(() => dispatch(actionCalls.removeRelation(id)));
     },
 
-    removeRelations: (ids: Id[]) => (dispatch: Dispatch) => {
+    removeRelations: (ids: Id[]): Result<Promise<KeeperActions>, Id[]> => (dispatch: Dispatcher<Id[]>) => {
         return api.removeRelations(ids)
             .then(() => dispatch(actionCalls.removeRelations(ids)));
     },
 
-    removeAllEntityRelations: (id: Id) => (dispatch: Dispatch) => {
+    removeAllEntityRelations: (id: Id): Result<Promise<KeeperActions>, Id> => (dispatch: Dispatcher<Id>) => {
         return api.removeAllEntityRelations(id)
             .then(() => dispatch(actionCalls.removeAllEntityRelations(id)));
     },
 
-    selectEntity: (id: Id) => {
-        return actionCalls.selectEntity(id);
+    // @ts-ignore
+    selectEntity: (id: Id): Result<Promise<KeeperActions>, Id> => (dispatch: Dispatcher<Id>, getState: () => State) => {
+        if (getState().entityStates[id]) {
+            return dispatch(actionCalls.selectEntity(id));
+        } else {
+            return dispatch(apiCalls.findClosestEntityRelations(id)).then(() => dispatch(actionCalls.selectEntity(id)));
+        }
     },
 };

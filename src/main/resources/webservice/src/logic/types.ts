@@ -1,4 +1,6 @@
 import * as actions from "./action";
+import {ThunkAction, ThunkDispatch} from "redux-thunk";
+import {Action} from "redux";
 
 export type EntityType = "Service" | "Storage" | "MessageQueue";
 
@@ -39,7 +41,7 @@ export type BranchDef = {
  */
 export type EntityProps = {
     readonly id: Id;
-    readonly type: EntityType;
+    readonly entityType: EntityType;
     readonly name: string;
     readonly description: string | null;
 }
@@ -93,3 +95,7 @@ export const MAX_PAGE_SIZE = 5;
 type InferType<T> = T extends { [key: string]: infer U} ? U : never;
 
 export type KeeperActions = ReturnType<InferType<typeof actions.actionCalls>>
+
+export type Result<R, A> = ThunkAction<R, State, A, Action>;
+
+export type Dispatcher<A> = ThunkDispatch<State, A, Action>;
