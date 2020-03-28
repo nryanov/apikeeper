@@ -15,7 +15,7 @@ export type Id = string
  * Definition of entity without id. This type is used to create an entity using API
  */
 export type EntityDef = {
-    readonly type: EntityType;
+    readonly entityType: EntityType;
     readonly name: string;
     readonly description: string | null;
 }

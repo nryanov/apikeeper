@@ -6,7 +6,8 @@ const apiVersion = "v1";
 const apiPath = `${apiBase}/${apiVersion}`;
 
 function request<T = any>(config: AxiosRequestConfig) {
-    return axios.request<T>(config).then(response => response.data);
+    return axios.request<T>(config)
+        .then(response => response.data);
 }
 
 export const findAllEntities = () => {
@@ -48,6 +49,7 @@ export const createEntity = (entityDef: EntityDef) => {
     return request<EntityProps>({
         url: `${apiPath}/entity`,
         method: "POST",
+        headers: {"Content-Type": "application/json; charset=UTF-8"},
         data: entityDef
     });
 };
@@ -56,6 +58,7 @@ export const updateEntity = (entity: EntityProps) => {
     return request<EntityProps>({
         url: `${apiPath}/entity`,
         method: "PUT",
+        headers: {"Content-Type": "application/json; charset=UTF-8"},
         data: entity
     });
 };
@@ -64,6 +67,7 @@ export const createRelation = (branchDef: BranchDef) => {
     return request<RelationProps>({
         url: `${apiPath}/relation`,
         method: "POST",
+        headers: {"Content-Type": "application/json; charset=UTF-8"},
         data: branchDef
     });
 };
