@@ -81,7 +81,6 @@ export type State = {
     readonly entityProps: {[key: string]: EntityProps};
     readonly entityStates: {[key: string]: Leaf[]};
     readonly selectedEntity: Id | null;
-
     readonly page: number;
     readonly maxPage: number;
     readonly filterByName: string | null;

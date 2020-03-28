@@ -9,6 +9,13 @@ function request<T = any>(config: AxiosRequestConfig) {
     return axios.request<T>(config).then(response => response.data);
 }
 
+export const findAllEntities = () => {
+    return request<EntityProps[]>({
+        url: `${apiPath}/entity`,
+        method: "GET",
+    });
+};
+
 export const findEntities = (page: number, entries: number) => {
     return request<EntityProps[]>({
         url: `${apiPath}/entity?page=${page}&entries=${entries}`,

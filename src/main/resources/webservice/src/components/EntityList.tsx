@@ -6,7 +6,7 @@ import EntityListItem from "./EntityListItem";
 
 
 const EntityList: React.FunctionComponent = () => {
-    const entityProps = useSelector<State, any>(state => state.entityProps);
+    const entityProps = useSelector<State, any>(state => state.filterByName !== null || state.filterByType !== null ? state.filteredEntityProps : state.entityProps);
 
     return (
         <table className="table table-hover">

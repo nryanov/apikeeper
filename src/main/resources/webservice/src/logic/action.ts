@@ -103,7 +103,7 @@ export const actionCalls = {
         }
     },
 
-    filterEntities: (namePattern: string, entityType: EntityType) => {
+    filterEntities: (namePattern: string | null, entityType: EntityType | null) => {
         return {
             type: FILTER_ENTITIES,
             namePattern: namePattern,
@@ -121,6 +121,11 @@ export const apiCalls = {
     updateEntity: (entity: EntityProps) => (dispatch: Dispatch<any>) => {
         return api.updateEntity(entity)
             .then(data => dispatch(actionCalls.updateEntity(data)));
+    },
+
+    findAllEntities: () => (dispatch: Dispatch) => {
+        return api.findAllEntities()
+            .then(data => dispatch(actionCalls.findEntities(data)));
     },
 
     findEntities: (page: number, entries: number) => (dispatch: Dispatch) => {

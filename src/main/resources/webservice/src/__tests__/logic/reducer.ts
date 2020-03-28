@@ -1,4 +1,3 @@
-import * as ActionType from "../../logic/actionType"
 import {reducer as updateState} from "../../logic/reducer"
 import * as Types from "../../logic/types"
 
@@ -7,7 +6,12 @@ describe("reducer specs", () => {
         let initialState: Types.State = {
             entityProps: {},
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -20,7 +24,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -43,7 +52,12 @@ describe("reducer specs", () => {
         let initialState: Types.State = {
             entityProps: {},
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -56,7 +70,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -77,7 +96,12 @@ describe("reducer specs", () => {
         let initialState: Types.State = {
             entityProps: {},
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -90,7 +114,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -118,7 +147,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -131,7 +165,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -165,7 +204,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -199,7 +243,12 @@ describe("reducer specs", () => {
                     targetEntity: "1"
                 }]
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -238,7 +287,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -272,7 +326,12 @@ describe("reducer specs", () => {
                     targetEntity: "1"
                 }]
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -311,7 +370,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -338,7 +402,12 @@ describe("reducer specs", () => {
                     targetEntity: "2"
                 }]
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -374,7 +443,12 @@ describe("reducer specs", () => {
                 }
             },
             entityStates: {},
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -401,7 +475,12 @@ describe("reducer specs", () => {
                     targetEntity: "2"
                 }]
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -458,7 +537,12 @@ describe("reducer specs", () => {
                     targetEntity: "1"
                 }]
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -473,7 +557,12 @@ describe("reducer specs", () => {
             entityStates: {
                 "1": []
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -517,7 +606,12 @@ describe("reducer specs", () => {
                     targetEntity: "1"
                 }]
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -539,7 +633,12 @@ describe("reducer specs", () => {
                 "1": [],
                 "2": []
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -595,7 +694,12 @@ describe("reducer specs", () => {
                     targetEntity: "1"
                 }]
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -617,7 +721,12 @@ describe("reducer specs", () => {
                 "1": [],
                 "2": []
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -673,7 +782,12 @@ describe("reducer specs", () => {
                     targetEntity: "1"
                 }]
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
@@ -695,7 +809,12 @@ describe("reducer specs", () => {
                 "1": [],
                 "2": []
             },
-            selectedEntity: null
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {
@@ -711,18 +830,410 @@ describe("reducer specs", () => {
         let initialState: Types.State = {
             entityProps: {},
             entityStates: {},
-            selectedEntity: "1"
+            selectedEntity: "1",
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let newState: Types.State = {
             entityProps: {},
             entityStates: {},
-            selectedEntity: "2"
+            selectedEntity: "2",
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
         };
 
         let action: Types.KeeperActions = {type: "SELECT_ENTITY", entityId: "2"};
 
         expect(updateState(initialState, action)).toEqual(newState);
         expect(initialState).not.toEqual(newState)
-    })
+    });
+
+    it("change page after call CHANGE_PAGE", () => {
+        let initialState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Service",
+                    name: "entity2",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 5,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
+        };
+
+        let newState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Service",
+                    name: "entity2",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 2,
+            maxPage: 5,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
+        };
+
+        let action: Types.KeeperActions = {
+            type: "CHANGE_PAGE",
+            page: 2
+        };
+
+        expect(updateState(initialState, action)).toEqual(newState);
+        expect(initialState).not.toEqual(newState)
+    });
+
+    it("update filters after call FILTER_ENTITIES - name pattern and entity type", () => {
+        let initialState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
+        };
+
+        let newState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: "entity",
+            filterByType: "Storage",
+            filteredEntityProps: {
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                }
+            },
+        };
+
+        let action: Types.KeeperActions = {
+            type: "FILTER_ENTITIES",
+            namePattern: "entity",
+            entityType: "Storage"
+        };
+
+        expect(updateState(initialState, action)).toEqual(newState);
+        expect(initialState).not.toEqual(newState)
+    });
+
+    it("update filters after call FILTER_ENTITIES - name pattern", () => {
+        let initialState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
+        };
+
+        let newState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: "entity",
+            filterByType: null,
+            filteredEntityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+        };
+
+        let action: Types.KeeperActions = {
+            type: "FILTER_ENTITIES",
+            namePattern: "entity",
+            entityType: null
+        };
+
+        expect(updateState(initialState, action)).toEqual(newState);
+        expect(initialState).not.toEqual(newState)
+    });
+
+    it("update filters after call FILTER_ENTITIES - entity type", () => {
+        let initialState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
+        };
+
+        let newState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: "Service",
+            filteredEntityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                }
+            },
+        };
+
+        let action: Types.KeeperActions = {
+            type: "FILTER_ENTITIES",
+            namePattern: null,
+            entityType: "Service"
+        };
+
+        expect(updateState(initialState, action)).toEqual(newState);
+        expect(initialState).not.toEqual(newState)
+    });
+
+    it("update filters after call FILTER_ENTITIES - clear filters", () => {
+        let initialState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: "Service",
+            filteredEntityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                }
+            },
+        };
+
+        let newState: Types.State = {
+            entityProps: {
+                "1": {
+                    id: "1",
+                    type: "Service",
+                    name: "entity1",
+                    description: null
+                },
+                "2": {
+                    id: "2",
+                    type: "Storage",
+                    name: "entity2",
+                    description: null
+                },
+                "3": {
+                    id: "3",
+                    type: "MessageQueue",
+                    name: "entity3",
+                    description: null
+                }
+            },
+            entityStates: {},
+            selectedEntity: null,
+            page: 1,
+            maxPage: 1,
+            filterByName: null,
+            filterByType: null,
+            filteredEntityProps: {},
+        };
+
+        let action: Types.KeeperActions = {
+            type: "FILTER_ENTITIES",
+            namePattern: null,
+            entityType: null
+        };
+
+        expect(updateState(initialState, action)).toEqual(newState);
+        expect(initialState).not.toEqual(newState)
+    });
 });
