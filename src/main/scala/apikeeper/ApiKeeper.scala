@@ -37,18 +37,6 @@ object ApiKeeper extends IOApp with LazyLogging {
       DataStorage[F](configuration.neo4jSettings).connect().evalTap(driver => Sync[F].delay(driver.verifyConnectivity()))
 
     new ModuleDef {
-      make[Driver].fromResource(driver)
-      make[Configuration].from(configuration)
-      make[RestApi[F]]
-      make[SwaggerApi[F]]
-      make[HttpServer[F]]
-      make[QueryRunner[F]]
-      make[Transactor[F]]
-      make[Migration[F]]
-      make[KeeperRepository[F]]
-      make[IdGenerator[F]].from[IdGeneratorImpl[F]]
-      make[Service[F]].from[KeeperService[F]]
-
       make[Blocker].named("transactionBlocker").fromResource(Blocker[F])
       make[Blocker]
         .named("staticFilesBlocker")
@@ -60,6 +48,18 @@ object ApiKeeper extends IOApp with LazyLogging {
       addImplicit[Timer[F]]
       addImplicit[Bracket[F, Throwable]]
       addImplicit[ConcurrentEffect[F]]
+
+      make[Configuration].from(configuration)
+      make[Driver].fromResource(driver)
+      make[QueryRunner[F]]
+      make[Transactor[F]]
+      make[KeeperRepository[F]]
+      make[IdGenerator[F]].from[IdGeneratorImpl[F]]
+      make[Service[F]].from[KeeperService[F]]
+      make[RestApi[F]]
+      make[SwaggerApi[F]]
+      make[HttpServer[F]]
+      make[Migration[F]]
     }
   }
 }
