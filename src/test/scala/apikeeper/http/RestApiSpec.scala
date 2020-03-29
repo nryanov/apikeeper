@@ -1,10 +1,12 @@
 package apikeeper.http
 
+import java.util.concurrent.Executors
+
 import cats.Applicative
 import cats.syntax.show._
 import cats.syntax.option._
 import cats.data.OptionT
-import cats.effect.{Bracket, ConcurrentEffect, ContextShift, IO, Resource, Sync, Timer}
+import cats.effect.{Blocker, Bracket, ConcurrentEffect, ContextShift, IO, Resource, Sync, Timer}
 import apikeeper.datasource.{DataStorage, Migration, QueryRunner, Transactor}
 import apikeeper.http._
 import apikeeper.http.internal.{EntityTypeFilter, Filter, NameFilter}
@@ -28,6 +30,8 @@ import org.http4s.circe.CirceEntityEncoder._
 import scala.util.control.NoStackTrace
 import org.scalatest.{Assertion, BeforeAndAfterEach, EitherValues}
 
+import scala.concurrent.ExecutionContext
+
 class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEach with EitherValues {
   override val containerDef: Neo4jContainer.Def = Neo4jContainer.Def(dockerImageName = "neo4j:4.0.0")
 
@@ -50,6 +54,12 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       make[IdGenerator[IO]].from[FixedUUID[IO]]
       make[Service[IO]].from[KeeperService[IO]]
       make[RestApi[IO]]
+      make[Blocker]
+        .named("transactionBlocker")
+        .from(Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())))
+      make[Blocker]
+        .named("staticFilesBlocker")
+        .from(Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())))
       addImplicit[Sync[IO]]
       addImplicit[ContextShift[IO]]
       addImplicit[Timer[IO]]

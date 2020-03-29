@@ -8,7 +8,7 @@ class DataStorage[F[_]](neo4jSettings: Neo4jSettings)(implicit F: Sync[F]) {
   def connect(): Resource[F, Driver] = {
     def acquire: F[Driver] = {
       val auth: AuthToken = AuthTokens.basic(neo4jSettings.username, neo4jSettings.password)
-      val cfg = Config.builder().withLogging(Logging.slf4j()).build()
+      val cfg = Config.builder().withMaxConnectionPoolSize(16).withLogging(Logging.slf4j()).build()
       F.delay(GraphDatabase.driver(neo4jSettings.uri, auth, cfg))
     }
 

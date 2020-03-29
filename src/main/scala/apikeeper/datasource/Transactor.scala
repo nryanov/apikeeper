@@ -4,22 +4,25 @@ import apikeeper.datasource.Transactor.Tx
 import cats.arrow.FunctionK
 import cats.data.ReaderT
 import cats.~>
-import cats.effect.{Bracket, Sync}
+import cats.effect.{Blocker, Bracket, ContextShift, Sync}
 import cats.syntax.functor._
 import cats.syntax.flatMap._
 import cats.syntax.applicativeError._
+import distage.Id
 import org.neo4j.driver.{Driver, Session, Transaction}
 import org.pure4s.logger4s.LazyLogging
 import org.pure4s.logger4s.cats.Logger
 
-class Transactor[F[_]](driver: Driver)(implicit F: Sync[F]) extends LazyLogging {
+class Transactor[F[_]: ContextShift](driver: Driver, blocker: Blocker @Id("transactionBlocker"))(implicit F: Sync[F]) extends LazyLogging {
   def transact(): ~>[Tx[F, *], F] =
     FunctionK.lift[Tx[F, *], F](transactSync)
 
   private def transactSync[A](tx: Tx[F, A]): F[A] = {
     def acquire: F[Session] = F.delay(driver.session())
 
-    def use(session: Session): F[A] = for {
+    def use(session: Session): F[A] = blocker.blockOn(run(session))
+
+    def run(session: Session): F[A] = for {
       transaction <- F.delay(session.beginTransaction())
       result <- tx(transaction).onError {
         case e: Throwable =>
@@ -40,5 +43,5 @@ class Transactor[F[_]](driver: Driver)(implicit F: Sync[F]) extends LazyLogging 
 object Transactor {
   type Tx[F[_], A] = ReaderT[F, Transaction, A]
 
-  def apply[F[_]: Sync](driver: Driver): Transactor[F] = new Transactor(driver)
+  def apply[F[_]: Sync: ContextShift](driver: Driver, blocker: Blocker): Transactor[F] = new Transactor(driver, blocker)
 }

@@ -1,9 +1,11 @@
 package apikeeper.service
 
+import java.util.concurrent.Executors
+
 import cats.Applicative
 import cats.syntax.applicative._
 import cats.syntax.flatMap._
-import cats.effect.{Bracket, ConcurrentEffect, ContextShift, Resource, Sync, Timer}
+import cats.effect.{Blocker, Bracket, ConcurrentEffect, ContextShift, Resource, Sync, Timer}
 import org.neo4j.driver.Driver
 import com.dimafeng.testcontainers.Neo4jContainer
 import com.dimafeng.testcontainers.scalatest.TestContainerForAll
@@ -17,6 +19,8 @@ import apikeeper.{Configuration, DISpec, FixedUUID, Neo4jSettings}
 import apikeeper.model.{EntityDef, EntityType, RelationDef, RelationType}
 import apikeeper.repository.KeeperRepository
 import apikeeper.service.internal.IdGenerator
+
+import scala.concurrent.ExecutionContext
 
 class KeeperServiceSpec extends DISpec with TestContainerForAll with BeforeAndAfterEach with EitherValues {
   override val containerDef: Neo4jContainer.Def = Neo4jContainer.Def(dockerImageName = "neo4j:4.0.0")
@@ -39,6 +43,12 @@ class KeeperServiceSpec extends DISpec with TestContainerForAll with BeforeAndAf
       make[Migration[F]]
       make[IdGenerator[F]].from[FixedUUID[F]]
       make[KeeperService[F]]
+      make[Blocker]
+        .named("transactionBlocker")
+        .from(Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())))
+      make[Blocker]
+        .named("staticFilesBlocker")
+        .from(Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newSingleThreadExecutor())))
       addImplicit[Sync[F]]
       addImplicit[ContextShift[F]]
       addImplicit[Timer[F]]

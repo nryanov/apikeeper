@@ -1,5 +1,7 @@
 package apikeeper
 
+import java.util.concurrent.Executors
+
 import apikeeper.datasource.{DataStorage, Migration, QueryRunner, Transactor}
 import apikeeper.http.{HttpServer, RestApi, SwaggerApi}
 import apikeeper.repository.KeeperRepository
@@ -7,10 +9,12 @@ import apikeeper.service.internal.{IdGenerator, IdGeneratorImpl}
 import apikeeper.service.{KeeperService, Service}
 import cats.Applicative
 import distage.{GCMode, Injector, ModuleDef, TagK}
-import cats.effect.{Bracket, ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Resource, Sync, Timer}
+import cats.effect.{Blocker, Bracket, ConcurrentEffect, ContextShift, ExitCode, IO, IOApp, Resource, Sync, Timer}
 import org.neo4j.driver.Driver
 import org.pure4s.logger4s.LazyLogging
 import org.pure4s.logger4s.cats.Logger
+
+import scala.concurrent.ExecutionContext
 
 object ApiKeeper extends IOApp with LazyLogging {
   override def run(args: List[String]): IO[ExitCode] = for {
@@ -32,6 +36,7 @@ object ApiKeeper extends IOApp with LazyLogging {
     val driver: Resource[F, Driver] =
       DataStorage[F](configuration.neo4jSettings).connect().evalTap(driver => Sync[F].delay(driver.verifyConnectivity()))
 
+    // https://izumi.7mind.io/latest/release/doc/distage/basics.html#auto-traits
     new ModuleDef {
       make[Driver].fromResource(driver)
       make[Configuration].from(configuration)
@@ -44,6 +49,11 @@ object ApiKeeper extends IOApp with LazyLogging {
       make[KeeperRepository[F]]
       make[IdGenerator[F]].from[IdGeneratorImpl[F]]
       make[Service[F]].from[KeeperService[F]]
+
+      make[Blocker].named("transactionBlocker").fromEffect(Blocker[F])
+      make[Blocker]
+        .named("staticFilesBlocker")
+        .from(Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newFixedThreadPool(8))))
 
       addImplicit[Sync[F]]
       addImplicit[ContextShift[F]]
