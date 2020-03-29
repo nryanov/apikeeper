@@ -50,7 +50,7 @@ object ApiKeeper extends IOApp with LazyLogging {
       make[IdGenerator[F]].from[IdGeneratorImpl[F]]
       make[Service[F]].from[KeeperService[F]]
 
-      make[Blocker].named("transactionBlocker").fromEffect(Blocker[F])
+      make[Blocker].named("transactionBlocker").fromResource(Blocker[F])
       make[Blocker]
         .named("staticFilesBlocker")
         .from(Blocker.liftExecutionContext(ExecutionContext.fromExecutor(Executors.newFixedThreadPool(8))))
