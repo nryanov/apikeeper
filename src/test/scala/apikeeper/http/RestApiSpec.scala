@@ -13,7 +13,7 @@ import apikeeper.model.graph.{BranchDef, Leaf}
 import apikeeper.repository.KeeperRepository
 import apikeeper.service.{KeeperService, Service}
 import apikeeper.service.internal.IdGenerator
-import apikeeper.{DISpec, FixedUUID, Neo4jSettings}
+import apikeeper.{Configuration, DISpec, FixedUUID, Neo4jSettings}
 import com.dimafeng.testcontainers.Neo4jContainer
 import com.dimafeng.testcontainers.scalatest.TestContainerForAll
 import distage.{GCMode, Injector, ModuleDef}
@@ -42,6 +42,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
   def testModule(driver: Resource[IO, Driver]) =
     new ModuleDef {
       make[Driver].fromResource(driver)
+      make[Configuration].fromEffect(Configuration.create[IO])
       make[QueryRunner[IO]]
       make[Transactor[IO]]
       make[KeeperRepository[IO]]

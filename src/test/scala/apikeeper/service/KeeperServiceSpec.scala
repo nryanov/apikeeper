@@ -13,7 +13,7 @@ import izumi.distage.model.definition.DIResource
 import org.scalatest.{BeforeAndAfterEach, EitherValues}
 import apikeeper.datasource.{DataStorage, Migration, QueryRunner, Transactor}
 import apikeeper.model.graph.BranchDef
-import apikeeper.{DISpec, FixedUUID, Neo4jSettings}
+import apikeeper.{Configuration, DISpec, FixedUUID, Neo4jSettings}
 import apikeeper.model.{EntityDef, EntityType, RelationDef, RelationType}
 import apikeeper.repository.KeeperRepository
 import apikeeper.service.internal.IdGenerator
@@ -32,6 +32,7 @@ class KeeperServiceSpec extends DISpec with TestContainerForAll with BeforeAndAf
   def testModule(driver: Resource[F, Driver]) =
     new ModuleDef {
       make[Driver].fromResource(driver)
+      make[Configuration].fromEffect(Configuration.create[F])
       make[QueryRunner[F]]
       make[Transactor[F]]
       make[KeeperRepository[F]]
