@@ -99,7 +99,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
 
       for {
         entity <- service.createEntity(entityDef)
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/v1/entity/${entity.id.show}"))))
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/api/v1/entity/${entity.id.show}"))))
       } yield {
         checkPredicate[Option[Entity]](response, Status.Ok, _.contains(entity))
       }
@@ -113,7 +113,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
 
       for {
         entity <- service.createEntity(entityDef)
-        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/v1/entity/${entity.id.show}"))))
+        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/api/v1/entity/${entity.id.show}"))))
         result <- service.findEntity(entity.id)
       } yield {
         checkStatus[Option[Entity]](response, Status.Ok)
@@ -131,7 +131,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity1 <- service.createEntity(entityDef1)
         entity2 <- service.createEntity(entityDef2)
-        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/entity/").withEntity(Seq(entity1.id, entity2.id))))
+        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/api/v1/entity/").withEntity(Seq(entity1.id, entity2.id))))
         result <- service.findEntities(1, 10)
       } yield {
         checkStatus[Seq[Entity]](response, Status.Ok)
@@ -144,7 +144,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
 
       for {
         id <- fixedUUID.next()
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/v1/entity/${id.show}"))))
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/api/v1/entity/${id.show}"))))
       } yield {
         checkStatus[Option[Entity]](response, Status.Ok)
       }
@@ -157,7 +157,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
 
       for {
         response <- run(
-          rest.run(Request[IO](method = Method.POST, uri = uri"/v1/entity/").withEntity(entityDef))
+          rest.run(Request[IO](method = Method.POST, uri = uri"/api/v1/entity/").withEntity(entityDef))
         )
       } yield {
         checkStatus[Entity](response, Status.Ok)
@@ -174,7 +174,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity <- service.createEntity(entityDef)
         updatedEntity = entity.copy(name = "updatedService")
         response <- run(
-          rest.run(Request[IO](method = Method.PUT, uri = uri"/v1/entity/").withEntity(updatedEntity))
+          rest.run(Request[IO](method = Method.PUT, uri = uri"/api/v1/entity/").withEntity(updatedEntity))
         )
         result <- service.findEntity(entity.id)
       } yield {
@@ -192,7 +192,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity <- service.createEntity(entityDef)
         response <- run(
-          rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/".withQueryParam("page", 1).withQueryParam("entries", 1)))
+          rest.run(Request[IO](method = Method.GET, uri = uri"/api/v1/entity/".withQueryParam("page", 1).withQueryParam("entries", 1)))
         )
       } yield {
         check[Seq[Entity]](response, Status.Ok, Seq(entity))
@@ -207,7 +207,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
 
       for {
         entity <- service.createEntity(entityDef)
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/")))
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/api/v1/entity/")))
       } yield {
         check[Seq[Entity]](response, Status.Ok, Seq(entity))
       }
@@ -225,7 +225,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         _ <- service.createEntity(entityDef)
         entity <- service.createEntity(anotherDef)
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/filter").withEntity(filter)))
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/api/v1/entity/filter").withEntity(filter)))
       } yield {
         check[Seq[Entity]](response, Status.Ok, Seq(entity))
       }
@@ -243,7 +243,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
       for {
         entity <- service.createEntity(entityDef)
         _ <- service.createEntity(anotherDef)
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/v1/entity/filter").withEntity(filter)))
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = uri"/api/v1/entity/filter").withEntity(filter)))
       } yield {
         check[Seq[Entity]](response, Status.Ok, Seq(entity))
       }
@@ -261,7 +261,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity2 <- service.createEntity(anotherDef)
         branchDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
         relation <- service.createRelation(branchDef)
-        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/v1/entity/${entity1.id.show}/relation"))))
+        response <- run(rest.run(Request[IO](method = Method.GET, uri = Uri(path = s"/api/v1/entity/${entity1.id.show}/relation"))))
       } yield {
         check[Seq[Leaf]](response, Status.Ok, Seq(Leaf(entity2, relation)))
       }
@@ -280,7 +280,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         branchDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
         _ <- service.createRelation(branchDef)
         response <- run(
-          rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/v1/entity/${entity1.id.show}/relation")))
+          rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/api/v1/entity/${entity1.id.show}/relation")))
         )
         result <- service.findClosestEntityRelations(entity1.id)
       } yield {
@@ -301,7 +301,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity2 <- service.createEntity(anotherDef)
         branchDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
         relation <- service.createRelation(branchDef)
-        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/v1/relation/${relation.id.show}"))))
+        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = Uri(path = s"/api/v1/relation/${relation.id.show}"))))
         result <- service.findClosestEntityRelations(entity1.id)
       } yield {
         assert(result.isEmpty)
@@ -320,7 +320,7 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         entity1 <- service.createEntity(entityDef)
         entity2 <- service.createEntity(anotherDef)
         branchDef = BranchDef(entity1.id, RelationDef(RelationType.Upstream), entity2.id)
-        response <- run(rest.run(Request[IO](method = Method.POST, uri = uri"/v1/relation/").withEntity(branchDef)))
+        response <- run(rest.run(Request[IO](method = Method.POST, uri = uri"/api/v1/relation/").withEntity(branchDef)))
       } yield {
         checkStatus[Relation](response, Status.Ok)
       }
@@ -340,7 +340,9 @@ class RestApiSpec extends DISpec with TestContainerForAll with BeforeAndAfterEac
         branchDef2 = BranchDef(entity1.id, RelationDef(RelationType.Downstream), entity2.id)
         relation1 <- service.createRelation(branchDef1)
         relation2 <- service.createRelation(branchDef2)
-        response <- run(rest.run(Request[IO](method = Method.DELETE, uri = uri"/v1/relation/").withEntity(Seq(relation1.id, relation2.id))))
+        response <- run(
+          rest.run(Request[IO](method = Method.DELETE, uri = uri"/api/v1/relation/").withEntity(Seq(relation1.id, relation2.id)))
+        )
         result <- service.findClosestEntityRelations(entity1.id)
       } yield {
         assert(result.isEmpty)
