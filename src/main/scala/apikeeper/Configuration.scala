@@ -12,7 +12,10 @@ final case class Neo4jSettings(
   password: String
 )
 
-final case class ServerSettings()
+final case class ServerSettings(
+  port: Int,
+  host: String
+)
 
 final case class Configuration(
   neo4jSettings: Neo4jSettings,

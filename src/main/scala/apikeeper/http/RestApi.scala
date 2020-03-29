@@ -21,7 +21,7 @@ class RestApi[F[_]: ContextShift](service: Service[F])(implicit F: Sync[F]) {
   import RestApi._
 
   private val baseEndpoint: Endpoint[Unit, (StatusCode, ErrorInfo), Unit, Nothing] =
-    endpoint.in(apiVersion).errorOut(statusCode.and(jsonBody[ErrorInfo]))
+    endpoint.in("api" / apiVersion).errorOut(statusCode.and(jsonBody[ErrorInfo]))
 
   val findEntityEndpoint: Endpoint[Id, (StatusCode, ErrorInfo), Option[Entity], Nothing] =
     baseEndpoint.get.in("entity").in(path[Id]).out(jsonBody[Option[Entity]])

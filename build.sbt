@@ -64,9 +64,12 @@ libraryDependencies ++= Seq(
   "com.dimafeng" %% "testcontainers-scala-neo4j" % testContainersVersion % Test
 )
 
-mainClass in Compile := Some("")
+mainClass in Compile := Some("apikeeper.ApiKeeper")
+
+test in assembly := {}
 
 assemblyMergeStrategy in assembly := {
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case "application.conf"            => MergeStrategy.concat
   case _                             => MergeStrategy.first
 }

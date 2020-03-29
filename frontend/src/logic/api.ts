@@ -1,7 +1,7 @@
 import axios, {AxiosRequestConfig} from "axios"
 import {BranchDef, EntityDef, EntityProps, Id, LeafFull, RelationProps} from "./types";
 
-const apiBase = "http://127.0.0.1:8080";
+const apiBase = "api";
 const apiVersion = "v1";
 const apiPath = `${apiBase}/${apiVersion}`;
 
