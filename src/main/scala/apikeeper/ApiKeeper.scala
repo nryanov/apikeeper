@@ -36,7 +36,6 @@ object ApiKeeper extends IOApp with LazyLogging {
     val driver: Resource[F, Driver] =
       DataStorage[F](configuration.neo4jSettings).connect().evalTap(driver => Sync[F].delay(driver.verifyConnectivity()))
 
-    // https://izumi.7mind.io/latest/release/doc/distage/basics.html#auto-traits
     new ModuleDef {
       make[Driver].fromResource(driver)
       make[Configuration].from(configuration)
