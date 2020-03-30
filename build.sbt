@@ -4,8 +4,6 @@ scalaVersion := "2.12.10"
 
 addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.11.0").cross(CrossVersion.full))
 
-enablePlugins(JavaAppPackaging)
-
 scalacOptions := Seq(
   "-encoding",
   "utf8",
@@ -64,12 +62,13 @@ libraryDependencies ++= Seq(
   "com.dimafeng" %% "testcontainers-scala-neo4j" % testContainersVersion % Test
 )
 
-mainClass in Compile := Some("apikeeper.ApiKeeper")
-
+mainClass in assembly := Some("apikeeper.ApiKeeper")
+assemblyJarName in assembly := "apikeeper.jar"
 test in assembly := {}
 
 assemblyMergeStrategy in assembly := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case "application.conf"            => MergeStrategy.concat
-  case _                             => MergeStrategy.first
+  case PathList("META-INF", "MANIFEST.MF") => MergeStrategy.discard
+  case PathList("META-INF", xs @ _*)       => MergeStrategy.deduplicate
+  case "application.conf"                  => MergeStrategy.concat
+  case _                                   => MergeStrategy.first
 }
